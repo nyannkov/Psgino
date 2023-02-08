@@ -151,11 +151,12 @@ namespace PsgCtrl
     {
         uint16_t    SET_MML        : 1;
         uint16_t    REVERSE        : 1;
+        uint16_t    NUM_CH_IMPL    : 2;
         uint16_t    NUM_CH_USED    : 2;
         uint16_t    CH_END_CNT     : 2;
         uint16_t    RH_LEN         : 1;
         uint16_t    CTRL_STAT      : 2;
-        uint16_t                   : 7;
+        uint16_t                   : 5;
     };
 
     struct SYS_REQUEST
@@ -273,12 +274,18 @@ namespace PsgCtrl
     struct SLOT
     {
         GLOBAL_INFO     gl_info;
-        CHANNEL_INFO    ch_info[NUM_CHANNEL];
+        CHANNEL_INFO   *ch_info_list[NUM_CHANNEL];
         PSG_REG         psg_reg;
     };
 
-    void init_slot(SLOT &slot, uint32_t s_clock);
-    int set_mml(SLOT &slot, const char *p_mml, uint16_t mode, bool reverse);
+    void init_slot( SLOT    &slot
+            , uint32_t      s_clock
+            , bool          reverse
+            , CHANNEL_INFO  *p_ch0
+            , CHANNEL_INFO  *p_ch1 = nullptr
+            , CHANNEL_INFO  *p_ch2 = nullptr
+            );
+    int set_mml(SLOT &slot, const char *p_mml, uint16_t mode);
     void control_psg(SLOT &slot);
 }
 #pragma pack()
