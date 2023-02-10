@@ -12,14 +12,16 @@ public:
     void Stop();
     enum PlayStatus { PlayStop, Playing, PlayEnd };
     PlayStatus GetStatus();
-    void Proc();
+    virtual void Proc();
 
 protected:
     PsgCtrl::SLOT           slot0;
+    void (*p_write)(uint8_t addr, uint8_t data);
+
+private:
     PsgCtrl::CHANNEL_INFO   ch0;
     PsgCtrl::CHANNEL_INFO   ch1;
     PsgCtrl::CHANNEL_INFO   ch2;
-    void (*p_write)(uint8_t addr, uint8_t data);
 };
 
 class PsginoZ : public Psgino
@@ -30,11 +32,13 @@ public:
     void PlaySe();
     void StopSe();
     PlayStatus GetSeStatus();
-    void Proc();
+    void Proc() override;
 
 private:
     PsgCtrl::SLOT           slot1;
-    PsgCtrl::CHANNEL_INFO   ch_se_0;
+    PsgCtrl::CHANNEL_INFO   ch0_se;
+    uint16_t reg_mask;
+    uint8_t mixer_mask;
 };
 
 #endif/*PSGINO_H*/

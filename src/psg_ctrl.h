@@ -19,11 +19,11 @@ namespace PsgCtrl
 
     const int16_t MAX_TP                        = (4095);
 
-    const int16_t SW_ENV_STAT_INIT_NOTE_ON     = (0);
-    const int16_t SW_ENV_STAT_ATTACK           = (1);
-    const int16_t SW_ENV_STAT_HOLD             = (2);
-    const int16_t SW_ENV_STAT_DECAY            = (3);
-    const int16_t SW_ENV_STAT_FADE             = (4);
+    const int16_t SW_ENV_STAT_INIT_NOTE_ON      = (0);
+    const int16_t SW_ENV_STAT_ATTACK            = (1);
+    const int16_t SW_ENV_STAT_HOLD              = (2);
+    const int16_t SW_ENV_STAT_DECAY             = (3);
+    const int16_t SW_ENV_STAT_FADE              = (4);
 
     const int16_t LFO_STAT_STOP                 = (0);
     const int16_t LFO_STAT_RUN                  = (1);
@@ -77,11 +77,11 @@ namespace PsgCtrl
 
     const int16_t MAX_MML_TEXT_LEN              = (0xFFFE);
 
-    const int16_t SW_ENV_MODE_OFF              = (0);
-    const int16_t SW_ENV_MODE_ON               = (1);
-    const int16_t MIN_SW_ENV_MODE              = SW_ENV_MODE_OFF;
-    const int16_t MAX_SW_ENV_MODE              = SW_ENV_MODE_ON;
-    const int16_t DEFAULT_SW_ENV_MODE          = SW_ENV_MODE_OFF;
+    const int16_t SW_ENV_MODE_OFF               = (0);
+    const int16_t SW_ENV_MODE_ON                = (1);
+    const int16_t MIN_SW_ENV_MODE               = SW_ENV_MODE_OFF;
+    const int16_t MAX_SW_ENV_MODE               = SW_ENV_MODE_ON;
+    const int16_t DEFAULT_SW_ENV_MODE           = SW_ENV_MODE_OFF;
 
     /* unit: 1msec. */
     const int16_t MIN_SOFT_ENVELOPE_ATTACK      = (0);
