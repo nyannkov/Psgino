@@ -20,12 +20,14 @@ void Psgino::SetMML(const char *mml, uint16_t mode)
 
 void Psgino::Play()
 {
-    this->slot0.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_STAT_PLAY;
+    this->slot0.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_REQ_PLAY;
+    this->slot0.gl_info.sys_request.CTRL_REQ_FLAG = 1;
 }
 
 void Psgino::Stop()
 {
-    this->slot0.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_STAT_STOP;
+    this->slot0.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_REQ_STOP;
+    this->slot0.gl_info.sys_request.CTRL_REQ_FLAG = 1;
 }
 
 Psgino::PlayStatus Psgino::GetStatus()
@@ -108,12 +110,14 @@ PsginoZ::PlayStatus PsginoZ::GetSeStatus()
 
 void PsginoZ::PlaySe()
 {
-    this->slot1.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_STAT_PLAY;
+    this->slot1.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_REQ_PLAY;
+    this->slot1.gl_info.sys_request.CTRL_REQ_FLAG = 1;
 }
 
 void PsginoZ::StopSe()
 {
-    this->slot1.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_STAT_STOP;
+    this->slot1.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_REQ_STOP;
+    this->slot1.gl_info.sys_request.CTRL_REQ_FLAG = 1;
 }
 
 void PsginoZ::Proc()
@@ -130,63 +134,53 @@ void PsginoZ::Proc()
     PsgCtrl::control_psg(this->slot0);
     PsgCtrl::control_psg(this->slot1);
 
-    if ( this->slot1.gl_info.sys_status.CTRL_STAT != PsgCtrl::CTRL_STAT_PLAY )
-    {
-        this->reg_mask = 0;
-        this->mixer_mask = 0;
-    }
-    else
-    {
-        this->mixer_mask |= this->slot1.psg_reg.flags_mixer;
-    }
-
     for ( i = 0; i < PsgCtrl::NUM_CHANNEL; i++ )
     {
-        /* MASK TP AND VOLUME CONTROL */
-        if ( ( this->mixer_mask & (0x1<<i) ) != 0 )
-        {
-            this->reg_mask   |= (0x3 << (0x2*i));
-            this->reg_mask   |= (0x1 << (0x8+i));
-        }
-
         /* MASK HW ENV SETTINGS */
         if ( ( this->slot1.psg_reg.data[0x8+i] & 0x10 ) != 0 )
         {
             this->reg_mask   |= (0x7 << 0xB);
         }
 
-        /* MASK NOISE SETTINGS */
-        if ( ( this->slot1.psg_reg.data[0x7] & (0x1 << (0x3+i)) ) == 0 )
+        /* MASK TP AND VOLUME CONTROL */
+        if ( ( this->slot1.psg_reg.flags_mixer & (1 << i) ) != 0 )
         {
-            this->reg_mask   |= (0x1 << 0x6);
-            this->mixer_mask |= (0x7 << 0x3);
+            if ( ( this->slot1.psg_reg.data[0x7] & (1 << i) ) == 0 )
+            {
+                this->mixer_mask |= (0x1 << i);
+                this->reg_mask   |= (0x3 << (0x2*i));
+                this->reg_mask   |= (0x1 << (0x8+i));
+            }
+
+            /* MASK NOISE SETTINGS */
+            if ( ( this->slot1.psg_reg.data[0x7] & (1 << (0x3+i)) ) == 0 )
+            {
+                this->mixer_mask |= (0x1 << i);
+                this->mixer_mask |= (0x7 << 0x3);
+                this->reg_mask   |= (0x1 << 0x6);
+                this->reg_mask   |= (0x1 << (0x8+i));
+            }
         }
     }
 
     masked_flags_addr = this->slot0.psg_reg.flags_addr & ~this->reg_mask; 
 
+    mixer  = this->slot0.psg_reg.data[0x7] & ~this->mixer_mask;
+    mixer |= this->slot1.psg_reg.data[0x7] & this->mixer_mask;
+    mixer &= 0x3F;
+
     for ( i = 0; i <= 0xF; i++ )
     {
-        if ( i == 0x7 )
+        if ( ( this->slot1.psg_reg.flags_addr & (1<<i) ) != 0 )
         {
-            mixer  = this->slot0.psg_reg.data[0x7] & ((~this->mixer_mask)&0x3F);
-            mixer |= this->slot1.psg_reg.data[0x7] & this->mixer_mask;
-
-            this->p_write(i, mixer);
+            this->p_write(i, (i==0x7) ? mixer : this->slot1.psg_reg.data[i]);
+        }
+        else if ( ( masked_flags_addr & (1<<i) ) != 0 )
+        {
+            this->p_write(i, (i==0x7) ? mixer : this->slot0.psg_reg.data[i]);
         }
         else
         {
-            if ( ( this->slot1.psg_reg.flags_addr & (1<<i) ) != 0 )
-            {
-                this->p_write(i, this->slot1.psg_reg.data[i]);
-            }
-            else if ( ( masked_flags_addr & (1<<i) ) != 0 )
-            {
-                this->p_write(i, this->slot0.psg_reg.data[i]);
-            }
-            else
-            {
-            }
         }
     }
 
@@ -194,4 +188,15 @@ void PsginoZ::Proc()
     this->slot0.psg_reg.flags_mixer = 0;
     this->slot1.psg_reg.flags_addr = 0;
     this->slot1.psg_reg.flags_mixer = 0;
+
+    if ( this->slot1.gl_info.sys_status.CTRL_STAT != this->slot1.gl_info.sys_status.CTRL_STAT_PRE )
+    {
+        if ( this->slot1.gl_info.sys_status.CTRL_STAT != PsgCtrl::CTRL_STAT_PLAY )
+        {
+            this->slot0.psg_reg.data[0x7] &= ~this->mixer_mask;
+            this->slot0.psg_reg.data[0x7] |= 0x3F&this->mixer_mask;
+            this->reg_mask = 0;
+            this->mixer_mask = 0;
+        }
+    }
 }

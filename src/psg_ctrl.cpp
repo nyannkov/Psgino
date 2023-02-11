@@ -1427,6 +1427,31 @@ namespace
         p_ch_info->tone.VOLUME = DEFAULT_VOLUME_LEVEL;
         p_ch_info->tone.BIAS = DEFAULT_BIAS_LEVEL+BIAS_LEVEL_OFS;
     }
+
+    void reset_mml(SLOT &slot)
+    {
+        int16_t i;
+        int16_t ch;
+        const char *p_mml_head;
+        uint16_t mml_len;
+
+        slot.psg_reg.data[0x7]   = 0x3F;
+        slot.psg_reg.flags_addr  = 1<<0x7;
+        slot.psg_reg.flags_mixer = 0;
+        for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
+        {
+            ch = slot.gl_info.sys_status.REVERSE == 1 ? (NUM_CHANNEL-(i+1)) : i;
+            slot.psg_reg.flags_mixer |= (1<<ch);
+
+            p_mml_head = slot.ch_info_list[ch]->mml.p_mml_head;
+            mml_len = slot.ch_info_list[ch]->mml.mml_len;
+
+            init_ch_info(slot.ch_info_list[ch]);
+
+            slot.ch_info_list[ch]->mml.p_mml_head = p_mml_head;
+            slot.ch_info_list[ch]->mml.mml_len = mml_len;
+        }
+    }
 }
 
 namespace PsgCtrl
@@ -1517,30 +1542,26 @@ namespace PsgCtrl
         int16_t ch;
         int16_t decode_end_cnt = 0;
 
+        slot.gl_info.sys_status.CTRL_STAT_PRE = slot.gl_info.sys_status.CTRL_STAT;
+
         if ( slot.gl_info.sys_status.SET_MML == 0 )
         {
             return;
         }
 
-        if ( slot.gl_info.sys_status.CTRL_STAT != slot.gl_info.sys_request.CTRL_REQ )
+        if ( slot.gl_info.sys_request.CTRL_REQ_FLAG != 0 )
         {
-            switch ( slot.gl_info.sys_request.CTRL_REQ )
+            slot.gl_info.sys_request.CTRL_REQ_FLAG = 0;
+
+            if ( slot.gl_info.sys_request.CTRL_REQ == CTRL_REQ_PLAY )
             {
-            case CTRL_STAT_STOP:
-                slot.psg_reg.data[0x7]   = 0x3F;
-                slot.psg_reg.flags_addr  = 1<<0x7;
-                slot.psg_reg.flags_mixer = 0x7;
-                for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
-                {
-                    init_ch_info(slot.ch_info_list[i]);
-                }
-                break;
-
-            default:
-                break;
+                reset_mml(slot);
+                slot.gl_info.sys_status.CTRL_STAT = CTRL_STAT_PLAY;
             }
-
-            slot.gl_info.sys_status.CTRL_STAT = slot.gl_info.sys_request.CTRL_REQ;
+            else
+            {
+                slot.gl_info.sys_status.CTRL_STAT = CTRL_STAT_STOP;
+            }
         }
 
         if ( ( slot.gl_info.sys_status.CTRL_STAT == CTRL_STAT_STOP )

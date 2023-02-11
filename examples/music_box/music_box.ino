@@ -1,4 +1,4 @@
-#include <arduino.h>
+#include <Arduino.h>
 #include <Psgino.h>
 
 const char mml[] = 
@@ -10,7 +10,7 @@ void pin_config();
 void psg_write(uint8_t addr, uint8_t data);
 
 /* In this example, the PSG system clock is 2.097152 MHz. */
-PsginoZ psgino = PsginoZ(psg_write, 2097152);
+Psgino psgino = Psgino(psg_write, 2097152);
 unsigned long time0;
 
 void setup() {
@@ -26,10 +26,10 @@ void setup() {
 
 void loop() {
     
-    if ( (millis() - time0) >= 10 )
-    {
+    /* Call the Proc() method in 10 ms cycles. */
+    if ( (millis() - time0) >= 10 ) {
         time0 = millis();
-        /* Call the Proc() method in 10 ms cycles. */
+
         psgino.Proc();
     }
 }

@@ -13,6 +13,9 @@ namespace PsgCtrl
     const int16_t CTRL_STAT_PLAY                = (1);
     const int16_t CTRL_STAT_END                 = (2);
 
+    const int16_t CTRL_REQ_STOP                 = (0);
+    const int16_t CTRL_REQ_PLAY                 = (1);
+
     const int16_t PBEND_STAT_STOP               = (0);
     const int16_t PBEND_STAT_TP_UP              = (1);
     const int16_t PBEND_STAT_TP_DOWN            = (2);
@@ -156,18 +159,20 @@ namespace PsgCtrl
         uint16_t    CH_END_CNT     : 2;
         uint16_t    RH_LEN         : 1;
         uint16_t    CTRL_STAT      : 2;
-        uint16_t                   : 5;
+        uint16_t    CTRL_STAT_PRE  : 2;
+        uint16_t                   : 3;
     };
 
     struct SYS_REQUEST
     {
-        uint16_t    CTRL_REQ       : 2;
-        uint16_t                   :14;
+        uint8_t    CTRL_REQ        : 2;
+        uint8_t                    : 6;
+        uint8_t    CTRL_REQ_FLAG   : 1;
+        uint8_t                    : 7;
     };
 
     struct CH_STATUS
     {
-        uint16_t    DECODE_RESET   : 1;
         uint16_t    DECODE_END     : 1;
         uint16_t    LEGATO         : 1;
         uint16_t    LFO_MODE       : 3;
@@ -176,7 +181,7 @@ namespace PsgCtrl
         uint16_t    SW_ENV_STAT    : 3;
         uint16_t    PBEND_STAT     : 2;
         uint16_t    LOOP_DEPTH     : 2;
-        uint16_t                   : 1;
+        uint16_t                   : 2;
     };
 
     struct GLOBAL_INFO
