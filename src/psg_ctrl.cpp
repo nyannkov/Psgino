@@ -226,8 +226,8 @@ namespace
                 is_omitted = false;
                 n = sat( 
                     10*n + (int32_t)(*p_pos-'0')*sign
-                  , min
-                  , max
+                  , -100000
+                  ,  100000
                   );
             }
             else
