@@ -42,7 +42,7 @@ namespace
         return c;
     }
 
-    int16_t sat(int32_t x, int16_t min, int16_t max)
+    int16_t sat(int32_t x, int32_t min, int32_t max)
     {
         return( (x <= min ) ? min
               : (x >= max ) ? max
@@ -226,8 +226,8 @@ namespace
                 is_omitted = false;
                 n = sat( 
                     10*n + (int32_t)(*p_pos-'0')*sign
-                  , -30000
-                  ,  30000
+                  , min
+                  , max
                   );
             }
             else

@@ -25,7 +25,7 @@ namespace PsgCtrl
     const int16_t PBEND_STAT_TP_UP              = (1);
     const int16_t PBEND_STAT_TP_DOWN            = (2);
 
-    const int16_t MAX_TP                        = (4095);
+    const uint16_t MAX_TP                       = (4095);
 
     const int16_t SW_ENV_STAT_INIT_NOTE_ON      = (0);
     const int16_t SW_ENV_STAT_ATTACK            = (1);
@@ -63,9 +63,9 @@ namespace PsgCtrl
     const int16_t MAX_LOOP_TIMES                = (255);
     const int16_t DEFAULT_LOOP_TIMES            = (1);
 
-    const int16_t MIN_ENVELOP_EP                = (0x0000);
-    const int16_t MAX_ENVELOP_EP                = (0xFFFF);
-    const int16_t DEFAULT_ENVELOP_EP            = (0x0000);
+    const uint16_t MIN_ENVELOP_EP               = (0x0000);
+    const uint16_t MAX_ENVELOP_EP               = (0xFFFF);
+    const uint16_t DEFAULT_ENVELOP_EP           = (0x0000);
 
     const int16_t MIN_ENVELOP_SHAPE             = (0x0);
     const int16_t MAX_ENVELOP_SHAPE             = (0xF);
@@ -83,7 +83,7 @@ namespace PsgCtrl
     const int16_t MAX_NOTE_LENGTH               = (64);
     const int16_t DEFAULT_NOTE_LENGTH           = (4);
 
-    const int16_t MAX_MML_TEXT_LEN              = (0xFFFE);
+    const uint16_t MAX_MML_TEXT_LEN             = (0xFFFE);
 
     const int16_t SW_ENV_MODE_OFF               = (0);
     const int16_t SW_ENV_MODE_ON                = (1);
