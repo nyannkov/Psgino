@@ -22,25 +22,27 @@ const char mml[] =
         "G8.F16D8.F16C8.<A16A8.A#16>C8.<A#16A8.G16F2"
     "],"
     "T130"
-    "[2" 
-        "$E1$A0$H100$D100$S90$F2500" "V10L4O5"
-        "C" "<B8>R8" "C" "<B8R16B16" ">D8.C16<B8.>D16C2"
-        "C" "<B8>R8" "C" "<B8R16B16" ">D8.C16<B8.>D16<A8."
-        "F16F8R16F16F8.F16F8R16F16F8.F16F8R16F16F8.F16F8R16F16>D2"
-        "E8.D16<B-8.>D16<A8.F16F8.G16G8.G16F8.E16C2"
-    "],"
-    "T130"
     "[2"  
-        "$E1$A0$H20$D30$S70$F1000"
-        "V13L4O4"
+        "$E1$A0$H20$D30$S70$F1000" "V11L4O3"
         "G8.G16G8.G16 G8.G16G8.G16 G8.G16G8.G16 G8.G16G8.G16"
         "G8.G16G8.G16 G8.G16G8.G16 G8.G16G8.G16 F8.F16F8.F16"
         "$H100$D100$S90$F2500"
         "D2C#2C2A2"
         "$H20$D30$S70$F1000"
         "B-8.B-16G8.G16 F8.D16D8.D16 C8.C16C8.C16 <A2>"
+    "],"
+    "T130"
+    "[2" 
+        "$E1$A0$H100$D100$S90$F2500" "V10L4O5"
+        "C" "<B8>R8" "C" "<B8R16B16" ">D8.C16<B8.>D16C2"
+        "C" "<B8>R8" "C" "<B8R16B16" ">D8.C16<B8.>D16<A8."
+        "F16F8R16F16F8.F16F8R16F16F8.F16F8R16F16F8.F16F8R16F16>D2"
+        "E8.D16<B-8.>D16<A8.F16F8.G16G8.G16F8.E16C2"
     "]"
     ;
+
+const char mml_se1[] = "T136L64[8O7CO8C]";
+const char mml_se2[] = "$E1$A0$H100$D100$S90$F2000" "I16H64I32H4";
 
 void pin_config();
 void psg_write(uint8_t addr, uint8_t data);
@@ -48,16 +50,17 @@ void psg_write(uint8_t addr, uint8_t data);
 /*
  * In this example, the PSG system clock is 2.097152 MHz.
  */
-Psgino psgino = Psgino(psg_write, 2097152);
+PsginoZ psgino_z = PsginoZ(psg_write, 2097152);
+
 unsigned long time0;
 
 void setup() {
 
     pin_config();
   
-    psgino.SetMML(mml);
+    psgino_z.SetMML(mml);
 
-    psgino.Play();
+    psgino_z.Play();
 
     time0 = millis();
 }
@@ -68,11 +71,30 @@ void loop() {
     if ( (millis() - time0) >= 10 ) {
         time0 = millis();
 
-        psgino.Proc();
+        psgino_z.Proc();
+    }
+
+    if ( digitalRead(12) == LOW ) {
+
+        psgino_z.SetSeMML(mml_se1);
+        psgino_z.PlaySe();
+
+    } else if ( digitalRead(13) == LOW ) {
+
+        psgino_z.SetSeMML(mml_se2);
+        psgino_z.PlaySe();
+
+    } else {
     }
 }
 
 void pin_config() {
+
+    /*
+     * For the sound effect play buttons.
+     */
+    pinMode(12, INPUT);     /* Button 1 */
+    pinMode(13, INPUT);     /* Button 2 */
 
     /*
      * This is an example of setup for YMZ294.
@@ -97,7 +119,7 @@ void pin_config() {
     digitalWrite( 8, LOW);
     digitalWrite( 9, LOW);
     digitalWrite(10, HIGH);
-    digitalWrite(11, LOW);
+    digitalWrite(11, HIGH);
 }
 
 void psg_write(uint8_t addr, uint8_t data) {

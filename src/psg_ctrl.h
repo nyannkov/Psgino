@@ -1,3 +1,8 @@
+/*
+ * MIT License, see the LICENSE file for details.
+ *
+ * Copyright (c) 2023 nyannkov
+ */
 #ifndef PSG_CTRL_H
 #define PSG_CTRL_H
 

@@ -1,3 +1,8 @@
+/*
+ * MIT License, see the LICENSE file for details.
+ *
+ * Copyright (c) 2023 nyannkov
+ */
 #include "psg_ctrl.h"
 
 namespace

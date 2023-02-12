@@ -1,3 +1,8 @@
+/*
+ * MIT License, see the LICENSE file for details.
+ *
+ * Copyright (c) 2023 nyannkov
+ */
 #include "Psgino.h"
 
 Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock)
