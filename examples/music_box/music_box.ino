@@ -32,7 +32,7 @@ const char mml[] =
     "T130"
     "[2"  
         "$E1$A0$H20$D30$S70$F1000"
-        "V13L4O4"
+        "V12L4O3"
         "G8.G16G8.G16 G8.G16G8.G16 G8.G16G8.G16 G8.G16G8.G16"
         "G8.G16G8.G16 G8.G16G8.G16 G8.G16G8.G16 F8.F16F8.F16"
         "$H100$D100$S90$F2500"
@@ -46,9 +46,10 @@ void pin_config();
 void psg_write(uint8_t addr, uint8_t data);
 
 /*
- * In this example, the PSG system clock is 2.097152 MHz.
+ * This is an example when the system clock of PSG is 2.097152 MHz.
  */
 Psgino psgino = Psgino(psg_write, 2097152);
+
 unsigned long time0;
 
 void setup() {
