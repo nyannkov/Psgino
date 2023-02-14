@@ -20,9 +20,9 @@ void setup() {
 
      pin_config();
   
-     psgino. SetMML(mml);
+     psgino.SetMML(mml);
 
-     psgino. Play();
+     psgino.Play();
 
      time0 = millis();
 }
