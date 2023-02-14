@@ -29,7 +29,7 @@ void setup() {
 
 void loop() {
     
-     /* Call the Proc() method in 10 ms cycles.
+     /* Call the Proc() method in 10 ms cycles. */
      if ( (millis() - time0) >= 10 ) {
          time0 = millis();
 
@@ -85,7 +85,7 @@ void setup() {
 
 void loop() {
     
-     /* Call the Proc() method in 10 ms cycles.
+     /* Call the Proc() method in 10 ms cycles. */
      if ( (millis() - time0) >= 10 ) {
 
          time0 = millis();
