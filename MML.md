@@ -292,7 +292,7 @@ Sets ON/OFF of volume control by software envelope. This value defaults to OFF.
 **Example:**
 ```
 V15L4O4
-$A0$H100$D100$S90$F2000$R0
+$A0$H100$D100$S90$F2000
 
 $E0
 CDE2
