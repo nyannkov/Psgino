@@ -278,7 +278,7 @@ Loop playback of MML in []. Loops can be nested up to 3 levels. Loop symbols aft
 
 In addition to PSG's built-in envelope generator, Psgino also supports volume control using software envelopes.
 This feature can only be enabled if the volume is controlled with the V command rather than the S command.
-The shape of the envelope is set with 5 parameters (AHDSF method).
+The shape of the envelope is set with 5 parameters (AHDSFR method without "R").
 This envelope volume control can be set independently for each channel.
 
 ### $E &lt;enabled&gt;
