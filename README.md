@@ -50,19 +50,20 @@ The MML to be played can be set with the SetMML() method. Execute the Play() met
 Conversely, you can stop playing with the Stop() method. Also, the current playing status can be obtained with the GetStatus() method. There are three playing states:
 |State name|Description|
 |--|--|
-|PlayStop|Stopping playing. |
-|Playing|Playing. |
-|PlayEnd| Playing complete. |
+|PlayStop|MML playback is stopped.|
+|Playing|Playing MML. |
+|PlayEnd|The playback of MML is completed and stopped. |
 
+In either of these states, when the Play() method is called, the MML is played from the beginning.
 
 Please note that this library needs to call the Proc() method every 10 milliseconds as in the sample above.
 
 ### PsginoZ class
 
-This class inherits the Psgino class and adds a function that can output sound effects at any time.
+PsginoZ class inherits the Psgino class and adds a function that can output sound effects at any time.
 The PsginoZ class is suitable for playing sound effects during BGM playback, such as game programming.
 
-The following code is an example of generating a sound effect when the signal logic of the pulled up pins 12 and 13 is set to LOW.
+The following code is an example of generating a sound effect when the signal logic of the pulled up pins 14 and 15 is set to LOW.
 
 ```c
 PsginoZ psgino_z = PsginoZ(psg_write, 2097152);
@@ -90,12 +91,12 @@ void loop() {
          psgino_z.Proc();
      }
 
-     if ( digitalRead(12) == LOW ) {
+     if ( digitalRead(14) == LOW ) {
 
          psgino_z.SetSeMML(mml_se1);
          psgino_z.PlaySe();
 
-     } else if ( digitalRead(13) == LOW ) {
+     } else if ( digitalRead(15) == LOW ) {
 
          psgino_z.SetSeMML(mml_se2);
          psgino_z.PlaySe();
