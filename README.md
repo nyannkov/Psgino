@@ -62,9 +62,6 @@ Please note that this library needs to call the Proc() method every 10 milliseco
 This class inherits the Psgino class and adds a function that can output sound effects at any time.
 The PsginoZ class is suitable for playing sound effects during BGM playback, such as game programming.
 
-The MML of the sound effect to be played can be set with the SetSeMML() method. The usage is the same as the SetMML() method, but please note that the MML that can be read is only single notes, not triads.
-PlaySe() and StopSe() methods can be used to start and stop playing sound effects, respectively. The playing status of the sound effect can be obtained with GetSeStatus(). This status is the same as GetStatus().
-
 The following code is an example of generating a sound effect when the signal logic of the pulled up pins 12 and 13 is set to LOW.
 
 ```c
@@ -107,6 +104,9 @@ void loop() {
      }
 }
 ```
+
+The MML of the sound effect to be played can be set with the SetSeMML() method. The usage is the same as the SetMML() method, but please note that the MML that can be read is only single notes, not triads.
+PlaySe() and StopSe() methods can be used to start and stop playing sound effects, respectively. The playing status of the sound effect can be obtained with GetSeStatus(). This status is the same as GetStatus().
 
 Note that PsginoZ uses the C channel of PSG (ch=2 in the source code) for sound effect generation. Therefore, if a sound effect is generated when three channels (A, B and C) are in use during BGM playback, the BGM will temporarily play on two channels (A and B).
 
