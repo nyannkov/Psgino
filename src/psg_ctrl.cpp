@@ -9,6 +9,58 @@ namespace
 {
     using namespace PsgCtrl;
 
+    uint16_t U16(uint8_t h, uint8_t l);
+    uint8_t U16_HI(uint16_t x);
+    uint8_t U16_LO(uint16_t x);
+    uint16_t ms2tk(uint32_t time_ms);
+    int16_t sat(int32_t x, int32_t min, int32_t max);
+    void skip_white_space(const char **pp_text);
+    const char * count_dot(const char *p_pos, const char *p_tail, uint8_t *p_out);
+    uint16_t shift_tp(uint16_t tp, int16_t bias);
+    uint16_t calc_tp(int16_t n, uint32_t s_clock);
+    const char * read_number_ex(const char *p_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value, int32_t *p_out, /*@null@*/bool *p_is_omitted);
+    const char * read_number(const char *p_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value, int32_t *p_out);
+    int32_t get_param(const char **pp_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value);
+    int16_t get_tp_table_column_number(const char note_name);
+    const char * shift_half_note_number(const char *p_pos, const char *p_tail, int16_t note_num, int16_t *p_out);
+    uint16_t get_sus_volume(SLOT &slot, int16_t ch);
+    void trans_sw_env_state(SLOT &slot, int16_t ch);
+    void init_pitchbend(SLOT &slot, int16_t ch);
+    void proc_pitchbend(SLOT &slot, int16_t ch);
+    const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out);
+    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt);
+    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail);
+    void generate_tone(SLOT &slot, int16_t ch, const char **pp_pos, const char *p_tail);
+    int16_t decode_mml(SLOT &slot, int16_t ch);
+    void update_sw_env_volume(SLOT &slot, int16_t ch);
+    void proc_sw_env_gen(SLOT &slot, int16_t ch);
+    void proc_lfo(SLOT &slot, int16_t ch);
+    void init_ch_info(CHANNEL_INFO *p_ch_info);
+    void reset_mml(SLOT &slot);
+
+    inline char to_upper_case(char c)
+    {
+        if ( ('a' <= c) && (c <= 'z') )
+        {
+            c &= (uint8_t)~0x20UL;
+        }
+        return c;
+    }
+
+    inline bool is_white_space(const char c)
+    {
+        switch(c)
+        {
+        case ' ': /*@fallthrough@*/
+        case '\t':/*@fallthrough@*/
+        case '\n':/*@fallthrough@*/
+        case '\r':
+            return true;
+        default:
+            return false;
+        }
+    }
+
     uint16_t U16(uint8_t h, uint8_t l)
     {
         return (((uint16_t)(h)<<8)|(l));
@@ -33,14 +85,6 @@ namespace
         return time_tk;
     }
 
-    inline char to_upper_case(char c)
-    {
-        if ( ('a' <= c) && (c <= 'z') )
-        {
-            c &= (uint8_t)~0x20UL;
-        }
-        return c;
-    }
 
     int16_t sat(int32_t x, int32_t min, int32_t max)
     {
@@ -48,20 +92,6 @@ namespace
               : (x >= max ) ? max
               :  x
               );
-    }
-
-    inline bool is_white_space(const char c)
-    {
-        switch(c)
-        {
-        case ' ': /*@fallthrough@*/
-        case '\t':/*@fallthrough@*/
-        case '\n':/*@fallthrough@*/
-        case '\r':
-            return true;
-        default:
-            return false;
-        }
     }
 
     void skip_white_space(const char **pp_text)
@@ -579,6 +609,8 @@ namespace
     void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail)
     {
         int32_t param;
+        uint8_t dot_cnt;
+        uint32_t q12_delay_tk;
 
         (*pp_pos)++;
         switch ( to_upper_case(**pp_pos) )
@@ -701,7 +733,17 @@ namespace
                   , MAX_LFO_DELAY
                   , DEFAULT_LFO_DELAY
                 );
-                p_info->lfo.delay_tk = param;
+
+                dot_cnt = 0;
+                if ( **pp_pos == '.' )
+                {
+                    *pp_pos = count_dot(*pp_pos, p_tail, &dot_cnt);
+                }
+                q12_delay_tk = get_note_on_time( param
+                                               , p_info->tone.tempo
+                                               , dot_cnt
+                                               );
+                p_info->lfo.delay_tk = (q12_delay_tk>>12)&0xFFFF;
                 break;
 
             case 'P':
