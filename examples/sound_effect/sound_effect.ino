@@ -75,12 +75,12 @@ void loop() {
         psgino_z.Proc();
     }
 
-    if ( digitalRead(12) == LOW ) {
+    if ( digitalRead(14) == LOW ) {
 
         psgino_z.SetSeMML(mml_se1);
         psgino_z.PlaySe();
 
-    } else if ( digitalRead(13) == LOW ) {
+    } else if ( digitalRead(15) == LOW ) {
 
         psgino_z.SetSeMML(mml_se2);
         psgino_z.PlaySe();
@@ -94,8 +94,8 @@ void pin_config() {
     /*
      * For the sound effect play buttons.
      */
-    pinMode(12, INPUT);     /* Button 1 */
-    pinMode(13, INPUT);     /* Button 2 */
+    pinMode(14, INPUT);     /* Button 1 */
+    pinMode(15, INPUT);     /* Button 2 */
 
     /*
      * This is an example of setup for YMZ294.
