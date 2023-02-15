@@ -54,7 +54,7 @@ Conversely, you can stop playing with the Stop() method. Also, the current playi
 |Playing|Playing MML. |
 |PlayEnd|The playback of MML is completed and stopped. |
 
-In either of these states, when the Play() method is called, the MML is played from the beginning.
+These values are defined as enum PlayStatus types. In either of these states, when the Play() method is called, the MML is played from the beginning.
 
 Please note that this library needs to call the Proc() method every 10 milliseconds as in the sample above.
 
@@ -107,7 +107,7 @@ void loop() {
 ```
 
 The MML of the sound effect to be played can be set with the SetSeMML() method. The usage is the same as the SetMML() method, but please note that the MML that can be read is only single notes, not triads.
-PlaySe() and StopSe() methods can be used to start and stop playing sound effects, respectively. The playing status of the sound effect can be obtained with GetSeStatus(). This status is the same as GetStatus().
+PlaySe() and StopSe() methods can be used to start and stop playing sound effects, respectively. The playing status of the sound effect can be obtained with GetSeStatus().This method, like the GetStatus() method, returns a value of type enum PlayStatus.
 
 Note that PsginoZ uses the C channel of PSG (ch=2 in the source code) for sound effect generation. Therefore, if a sound effect is generated when three channels (A, B and C) are in use during BGM playback, the BGM will temporarily play on two channels (A and B).
 
