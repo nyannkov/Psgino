@@ -56,7 +56,7 @@ Conversely, you can stop playing with the Stop() method. Also, the current playi
 
 These values are defined as enum PlayStatus types. In either of these states, when the Play() method is called, the MML is played from the beginning.
 
-Note that in this library we need to call the Proc() method periodically as in the sample above. The default ringing frequency is 100 Hz. If you want to change the frequency, enter the desired value in Hz in Psgino's third argument (*proc_freq*). However, if the call frequency value is too high or too low, it may not work properly.
+Note that this library requires periodic calls to the Proc() method, as in the sample above. The default frequency is 100 Hz. If you wish to change the frequency, enter the desired value in Hz in the third argument (*proc_freq*) of Psgino constructor. However, if this value is too high or too low, it may not work properly.
 
 ### PsginoZ class
 
