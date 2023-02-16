@@ -5,12 +5,12 @@
  */
 #include "Psgino.h"
 
-Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock)
+Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq)
 {
     this->p_write = write;
-
     PsgCtrl::init_slot( this->slot0
                      , (uint32_t)(fs_clock*100+0.5F)
+                     , proc_freq
                      , false
                      , &this->ch0
                      , &this->ch1
@@ -76,11 +76,12 @@ void Psgino::Proc()
     this->slot0.psg_reg.flags_mixer = 0;
 }
 
-PsginoZ::PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock)
-       : Psgino(write, fs_clock)
+PsginoZ::PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq)
+       : Psgino(write, fs_clock, proc_freq)
 {
     PsgCtrl::init_slot( this->slot1
                      , (uint32_t)(fs_clock*100+0.5F)
+                     , proc_freq
                      , true
                      , &this->ch0_se
                      );

@@ -12,7 +12,7 @@ namespace
     uint16_t U16(uint8_t h, uint8_t l);
     uint8_t U16_HI(uint16_t x);
     uint8_t U16_LO(uint16_t x);
-    uint16_t ms2tk(uint32_t time_ms);
+    uint16_t ms2tk(uint32_t time_ms, uint8_t proc_freq);
     int16_t sat(int32_t x, int32_t min, int32_t max);
     void skip_white_space(const char **pp_text);
     const char * count_dot(const char *p_pos, const char *p_tail, uint8_t *p_out);
@@ -28,8 +28,8 @@ namespace
     void init_pitchbend(SLOT &slot, int16_t ch);
     void proc_pitchbend(SLOT &slot, int16_t ch);
     const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out);
-    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt);
-    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail);
+    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint8_t proc_freq);
+    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint8_t proc_freq);
     void generate_tone(SLOT &slot, int16_t ch, const char **pp_pos, const char *p_tail);
     int16_t decode_mml(SLOT &slot, int16_t ch);
     void update_sw_env_volume(SLOT &slot, int16_t ch);
@@ -76,11 +76,11 @@ namespace
         return (((x)>>0)&0xFF);
     }
 
-    uint16_t ms2tk(uint32_t time_ms)
+    uint16_t ms2tk(uint32_t time_ms, uint8_t proc_freq)
     {
         uint16_t time_tk;
 
-        time_tk = (time_ms*TICK_HZ+500)/1000;
+        time_tk = (time_ms*(uint32_t)proc_freq+500)/1000;
         
         return time_tk;
     }
@@ -600,7 +600,7 @@ namespace
         return p_pos;
     }
     
-    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt)
+    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint8_t proc_freq)
     {
         uint32_t q12_time, q12_time_delta;
 
@@ -609,7 +609,7 @@ namespace
             return 0;
         }
 
-        q12_time_delta = (((uint32_t)TICK_HZ*4*60)<<12) / ((uint16_t)tempo*note_len);
+        q12_time_delta = (((uint32_t)proc_freq*4*60)<<12) / ((uint16_t)tempo*note_len);
         q12_time = q12_time_delta;
 
         while ( dot_cnt > 0 )
@@ -622,7 +622,7 @@ namespace
         return q12_time;
     }
 
-    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail)
+    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint8_t proc_freq)
     {
         int32_t param;
         uint8_t dot_cnt;
@@ -639,7 +639,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_ATTACK
                   , DEFAULT_SOFT_ENVELOPE_ATTACK
                 );
-                p_info->sw_env.attack_tk = ms2tk(param);
+                p_info->sw_env.attack_tk = ms2tk(param, proc_freq);
                 break;
 
             case 'D':
@@ -650,7 +650,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_DECAY
                   , DEFAULT_SOFT_ENVELOPE_DECAY
                 );
-                p_info->sw_env.decay_tk = ms2tk(param);
+                p_info->sw_env.decay_tk = ms2tk(param, proc_freq);
                 break;
 
             case 'E':
@@ -672,7 +672,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_FADE
                   , DEFAULT_SOFT_ENVELOPE_FADE
                 );
-                p_info->sw_env.fade_tk = ms2tk(param);
+                p_info->sw_env.fade_tk = ms2tk(param, proc_freq);
                 break;
 
             case 'H':
@@ -683,7 +683,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_HOLD
                   , DEFAULT_SOFT_ENVELOPE_HOLD
                 );
-                p_info->sw_env.hold_tk = ms2tk(param);
+                p_info->sw_env.hold_tk = ms2tk(param, proc_freq);
                 break;
 
             case 'S':
@@ -758,6 +758,7 @@ namespace
                 q12_delay_tk = get_note_on_time( param
                                                , p_info->tone.tempo
                                                , dot_cnt
+                                               , proc_freq
                                                );
                 p_info->lfo.delay_tk = (q12_delay_tk>>12)&0xFFFF;
                 break;
@@ -992,6 +993,7 @@ namespace
                                         note_len
                                       , slot.ch_info_list[ch]->tone.tempo
                                       , dot_cnt
+                                      , slot.gl_info.proc_freq
                                       );
             q12_note_on_time += slot.ch_info_list[ch]->time.NOTE_ON_FRAC;
             slot.ch_info_list[ch]->time.NOTE_ON_FRAC = q12_note_on_time&0xFFF;
@@ -1085,7 +1087,7 @@ namespace
                 break;
 
             case '$':
-                decode_dollar(slot.ch_info_list[ch], &p_pos, p_tail);
+                decode_dollar(slot.ch_info_list[ch], &p_pos, p_tail, slot.gl_info.proc_freq);
                 break;
 
             case 'T':
@@ -1434,7 +1436,7 @@ namespace
 
         q6_omega = 1<<6;
         q6_omega *= (uint32_t)slot.ch_info_list[ch]->lfo.depth*4*slot.ch_info_list[ch]->lfo.speed;
-        q6_omega /= (TICK_HZ*MAX_LFO_PERIOD);
+        q6_omega /= ((uint16_t)slot.gl_info.proc_freq*MAX_LFO_PERIOD);
 
         q6_delta = slot.ch_info_list[ch]->lfo.DELTA_FRAC;
 
@@ -1538,6 +1540,7 @@ namespace PsgCtrl
 {
     void init_slot( SLOT    &slot
             , uint32_t      s_clock
+            , uint8_t       proc_freq
             , bool          reverse
             , CHANNEL_INFO  *p_ch0
             , CHANNEL_INFO  *p_ch1
@@ -1552,6 +1555,7 @@ namespace PsgCtrl
         slot.gl_info.s_clock = s_clock;
         slot.gl_info.sys_status.REVERSE = reverse ? 1 : 0;
         slot.gl_info.sys_status.NUM_CH_IMPL = 0;
+        slot.gl_info.proc_freq = (proc_freq != 0) ? proc_freq : PsgCtrl::DEFAULT_PROC_FREQ;
 
         for ( i = 0; i < NUM_CHANNEL; i++ )
         {

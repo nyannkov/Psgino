@@ -11,7 +11,7 @@
 class Psgino
 {
 public:
-    Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock);
+    Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ);
     void SetMML(const char *mml, uint16_t mode = 0);
     void Play();
     void Stop();
@@ -32,7 +32,7 @@ private:
 class PsginoZ : public Psgino
 {
 public:
-    PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock);
+    PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ);
     void SetSeMML(const char *mml, uint16_t mode = 0);
     void PlaySe();
     void StopSe();

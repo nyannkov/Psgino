@@ -38,7 +38,7 @@ namespace PsgCtrl
     const int16_t LFO_STAT_RUN                  = (1);
 
     const int16_t MAX_LFO_PERIOD                = (10);       /* unit: sec. */
-    const int16_t TICK_HZ                       = (100);      /* Hz */
+    const uint8_t DEFAULT_PROC_FREQ             = (100);      /* Hz */
 
     const int16_t MIN_NOTE_NUMBER               = (0);
     const int16_t MAX_NOTE_NUMBER               = (95);
@@ -196,6 +196,7 @@ namespace PsgCtrl
         SYS_REQUEST sys_request;
         const char *p_mml_text;
         uint32_t    s_clock;
+        uint8_t     proc_freq;
     };
 
     struct MML_INFO
@@ -292,6 +293,7 @@ namespace PsgCtrl
 
     void init_slot( SLOT    &slot
             , uint32_t      s_clock
+            , uint8_t       proc_freq
             , bool          reverse
             , CHANNEL_INFO  *p_ch0
             , CHANNEL_INFO  *p_ch1 = nullptr
