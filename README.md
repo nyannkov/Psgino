@@ -43,7 +43,7 @@ The write function interface is:
 ```c
 void (*p_write)(uint8_t addr, uint8_t data);
 ```
-Here, "addr" represents the address of the PSG register, and "data" represents the value to be written to the register.
+Here, *addr* represents the address of the PSG register, and *data* represents the value to be written to the register.
 Psgino uses this function to write values to PSG registers.
 
 The MML to be played can be set with the SetMML() method. Execute the Play() method to start playing. 
@@ -56,7 +56,7 @@ Conversely, you can stop playing with the Stop() method. Also, the current playi
 
 These values are defined as enum PlayStatus types. In either of these states, when the Play() method is called, the MML is played from the beginning.
 
-Note that this library requires the Proc() method to be called at regular intervals, as in the sample above. The default call frequency is 100 Hz. If you wish to change the frequency, enter the value you wish to set in Hz in the third argument ("proc_freq") of Psgino. However, if the value of the calling frequency is too large or too small, it may not work properly.
+Note that in this library we need to call the Proc() method periodically as in the sample above. The default ringing frequency is 100 Hz. If you want to change the frequency, enter the desired value in Hz in Psgino's third argument (*proc_freq*). However, if the call frequency value is too high or too low, it may not work properly.
 
 ### PsginoZ class
 
