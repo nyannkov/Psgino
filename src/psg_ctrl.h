@@ -24,6 +24,7 @@ namespace PsgCtrl
     const int16_t PBEND_STAT_STOP               = (0);
     const int16_t PBEND_STAT_TP_UP              = (1);
     const int16_t PBEND_STAT_TP_DOWN            = (2);
+    const int16_t PBEND_STAT_END                = (3);
 
     const uint16_t MAX_TP                       = (4095);
 
@@ -234,11 +235,12 @@ namespace PsgCtrl
     {
         uint8_t     speed;
         uint8_t     depth;
+        uint8_t     BASE_TP_L  : 8;
         uint16_t    delay_tk;
         uint16_t    theta;
         uint16_t    DELTA_FRAC : 6;
         uint16_t    TP_FRAC    : 6;
-        uint16_t               : 4;
+        uint16_t    BASE_TP_H  : 4;
     };
 
     struct SW_ENV_INFO

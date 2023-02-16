@@ -85,7 +85,6 @@ namespace
         return time_tk;
     }
 
-
     int16_t sat(int32_t x, int32_t min, int32_t max)
     {
         return( (x <= min ) ? min
@@ -479,10 +478,24 @@ namespace
         }
         else
         {
-            slot.ch_info_list[ch]->ch_status.PBEND_STAT = PBEND_STAT_STOP;
+            switch ( slot.ch_info_list[ch]->ch_status.PBEND_STAT )
+            {
+            case PBEND_STAT_TP_UP:/*@fallthrough@*/
+            case PBEND_STAT_TP_DOWN:/*@fallthrough@*/
+            case PBEND_STAT_END:
+                slot.ch_info_list[ch]->ch_status.PBEND_STAT = PBEND_STAT_END;
+                break;
+
+            case PBEND_STAT_STOP:/*@fallthrough@*/
+            default:
+                slot.ch_info_list[ch]->ch_status.PBEND_STAT = PBEND_STAT_STOP;
+                break;
+
+            }
         }
         
-        if ( slot.ch_info_list[ch]->ch_status.PBEND_STAT == PBEND_STAT_STOP )
+        if ( ( slot.ch_info_list[ch]->ch_status.PBEND_STAT == PBEND_STAT_STOP )
+        ||   ( slot.ch_info_list[ch]->ch_status.PBEND_STAT == PBEND_STAT_END  ) )
         {
             return;
         }
@@ -500,24 +513,27 @@ namespace
             if ( (q6_tp_end-q6_tp) <= q6_tp_d )
             {
                 q6_tp = q6_tp_end;
-                slot.ch_info_list[ch]->ch_status.PBEND_STAT = PBEND_STAT_STOP;
+                slot.ch_info_list[ch]->ch_status.PBEND_STAT = PBEND_STAT_END;
             }
             else
             {
                 q6_tp += q6_tp_d;
             }
         }
-        else
+        else if ( slot.ch_info_list[ch]->ch_status.PBEND_STAT == PBEND_STAT_TP_DOWN )
         {
             if ( (q6_tp-q6_tp_end) <= q6_tp_d )
             {
                 q6_tp = q6_tp_end;
-                slot.ch_info_list[ch]->ch_status.PBEND_STAT = PBEND_STAT_STOP;
+                slot.ch_info_list[ch]->ch_status.PBEND_STAT = PBEND_STAT_END;
             }
             else
             {
                 q6_tp -= q6_tp_d;
             }
+        }
+        else
+        {
         }
 
         tp_int = q6_tp>>6;
@@ -1011,6 +1027,10 @@ namespace
             {
                 slot.ch_info_list[ch]->time.lfo_delay = slot.ch_info_list[ch]->lfo.delay_tk;
                 slot.ch_info_list[ch]->lfo.theta = 0;
+                slot.ch_info_list[ch]->lfo.DELTA_FRAC = 0;
+                slot.ch_info_list[ch]->lfo.TP_FRAC = 0;
+                slot.ch_info_list[ch]->lfo.BASE_TP_H = (tp>>8)&0xF;
+                slot.ch_info_list[ch]->lfo.BASE_TP_L = tp&0xFF;
             }
         }
         else
@@ -1439,10 +1459,23 @@ namespace
                 }
                 else
                 {
-                    lq24_tp = (lq24_tp*Q_PITCHBEND_FACTOR)>>24;
+                    if ( ( theta == 0 ) 
+                    &&   ( slot.ch_info_list[ch]->ch_status.PBEND_STAT == PBEND_STAT_STOP ) )
+                    {
+                        uint16_t tp_base;
+                        tp_base = slot.ch_info_list[ch]->lfo.BASE_TP_H;
+                        tp_base = (tp_base<<8)|slot.ch_info_list[ch]->lfo.BASE_TP_L;
+                        lq24_tp = (uint64_t)tp_base<<24;
+                        q6_delta = 0;
+
+                    }
+                    else
+                    {
+                        lq24_tp = (lq24_tp*Q_PITCHBEND_FACTOR)>>24;
+                    }
                 }
 
-                slot.ch_info_list[ch]->lfo.TP_FRAC = ((lq24_tp+((uint32_t)1<<17))>>18)&0x3F;
+                slot.ch_info_list[ch]->lfo.TP_FRAC = (lq24_tp>>18)&0x3F;
                 tp_next = (lq24_tp>>24)&0xFFF;
 
                 theta++;
