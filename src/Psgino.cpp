@@ -142,12 +142,6 @@ void PsginoZ::Proc()
 
     for ( i = 0; i < PsgCtrl::NUM_CHANNEL; i++ )
     {
-        /* MASK HW ENV SETTINGS */
-        if ( ( this->slot1.psg_reg.data[0x8+i] & 0x10 ) != 0 )
-        {
-            this->reg_mask   |= (0x7 << 0xB);
-        }
-
         /* MASK TP AND VOLUME CONTROL */
         if ( ( this->slot1.psg_reg.flags_mixer & (1 << i) ) != 0 )
         {
@@ -165,6 +159,12 @@ void PsginoZ::Proc()
                 this->mixer_mask |= (0x7 << 0x3);
                 this->reg_mask   |= (0x1 << 0x6);
                 this->reg_mask   |= (0x1 << (0x8+i));
+            }
+
+            /* MASK HW ENV SETTINGS */
+            if ( ( this->slot1.psg_reg.data[0x8+i] & 0x10 ) != 0 )
+            {
+                this->reg_mask   |= (0x7 << 0xB);
             }
         }
     }

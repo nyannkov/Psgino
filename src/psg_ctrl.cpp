@@ -972,8 +972,7 @@ namespace
                 slot.psg_reg.data[0x8+ch] |= 1<<4;
                 if ( slot.ch_info_list[ch]->ch_status.LEGATO == 0 )
                 {
-                    /* To reload 5bit counter of the envelope generator. */
-                    slot.psg_reg.flags_addr |= 1<<0xD;
+                    slot.psg_reg.flags_addr |= 0x7<<0xB;
                 }
             }
             else
