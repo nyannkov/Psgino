@@ -1644,6 +1644,13 @@ namespace PsgCtrl
             else
             {
                 slot.gl_info.sys_status.CTRL_STAT = CTRL_STAT_STOP;
+                for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
+                {
+                    ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
+                    slot.psg_reg.data[0x7]   |= 0x9<<ch;
+                    slot.psg_reg.flags_mixer  = 0x1<<ch;
+                }
+                slot.psg_reg.flags_addr  = 1<<0x7;
             }
         }
 
