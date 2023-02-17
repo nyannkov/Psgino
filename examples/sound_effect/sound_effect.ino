@@ -43,7 +43,7 @@ const char mml[] =
     ;
 
 const char mml_se1[] = "$E1$A0$H100$D100$S90$F2000" "I16H64I32H8";
-const char mml_se2[] = "S0M3000" "O7L4$P-1800E";
+const char mml_se2[] = "$E1$A0$H100$D100$S90$F1000" "O7L4$P-1800E";
 
 void pin_config();
 void psg_write(uint8_t addr, uint8_t data);
