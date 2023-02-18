@@ -371,7 +371,7 @@ Sets the modulation depth. Modulation depth defaults to 0.
 
 |Values|Description|
 |--|--|
-|&lt;depth&gt;|Specifies the modulation depth in the range 0 to 360. If the modulation depth is n, the frequency of the sound varies from 2^(-n/360) times to 2^(n/360) times depending on the modulation function.|
+|&lt;depth&gt;|Specifies the modulation depth in the range 0 to 255. If the modulation depth is n, the frequency of the sound varies from 2^(-n/360) times to 2^(n/360) times depending on the modulation function.|
 
 ### $L &lt;low-frequency&gt;
 
