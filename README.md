@@ -83,26 +83,26 @@ void setup() {
 
 void loop() {
     
-     /* Call the Proc() method in 10 ms cycles. */
-     if ( (millis() - time0) >= 10 ) {
+    /* Call the Proc() method in 10 ms cycles. */
+    if ( (millis() - time0) >= 10 ) {
 
-         time0 = millis();
+        time0 = millis();
 
-         psgino_z.Proc();
-     }
+        if ( digitalRead(14) == LOW ) {
 
-     if ( digitalRead(14) == LOW ) {
+            psgino_z.SetSeMML(mml_se1);
+            psgino_z.PlaySe();
 
-         psgino_z.SetSeMML(mml_se1);
-         psgino_z.PlaySe();
+        } else if ( digitalRead(15) == LOW ) {
 
-     } else if ( digitalRead(15) == LOW ) {
+            psgino_z.SetSeMML(mml_se2);
+            psgino_z.PlaySe();
 
-         psgino_z.SetSeMML(mml_se2);
-         psgino_z.PlaySe();
+        } else {
+        }
 
-     } else {
-     }
+        psgino_z.Proc();
+    }
 }
 ```
 

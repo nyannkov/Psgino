@@ -73,20 +73,20 @@ void loop() {
 
         time0 = millis();
 
+        if ( digitalRead(14) == LOW ) {
+
+            psgino_z.SetSeMML(mml_se1);
+            psgino_z.PlaySe();
+
+        } else if ( digitalRead(15) == LOW ) {
+
+            psgino_z.SetSeMML(mml_se2);
+            psgino_z.PlaySe();
+
+        } else {
+        }
+
         psgino_z.Proc();
-    }
-
-    if ( digitalRead(14) == LOW ) {
-
-        psgino_z.SetSeMML(mml_se1);
-        psgino_z.PlaySe();
-
-    } else if ( digitalRead(15) == LOW ) {
-
-        psgino_z.SetSeMML(mml_se2);
-        psgino_z.PlaySe();
-
-    } else {
     }
 }
 
