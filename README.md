@@ -18,23 +18,25 @@ Psgino psgino = Psgino(psg_write, 2097152);
 
 void setup() {
 
-     pin_config();
-  
-     psgino.SetMML(mml);
+    pin_config();
 
-     psgino.Play();
+    psgino.Reset();
 
-     time0 = millis();
+    psgino.SetMML(mml);
+
+    psgino.Play();
+
+    time0 = millis();
 }
 
 void loop() {
     
-     /* Call the Proc() method in 10 ms cycles. */
-     if ( (millis() - time0) >= 10 ) {
-         time0 = millis();
+    /* Call the Proc() method in 10 ms cycles. */
+    if ( (millis() - time0) >= 10 ) {
+        time0 = millis();
 
-         psgino.Proc();
-     }
+        psgino.Proc();
+    }
 }
 ```
 
@@ -72,13 +74,15 @@ unsigned long time0;
 
 void setup() {
 
-     pin_config();
-  
-     psgino_z.SetMML(mml);
+    pin_config();
 
-     psgino_z.Play();
+    psgino.Reset();
 
-     time0 = millis();
+    psgino_z.SetMML(mml);
+
+    psgino_z.Play();
+
+    time0 = millis();
 }
 
 void loop() {
