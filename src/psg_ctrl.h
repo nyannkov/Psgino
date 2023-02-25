@@ -162,11 +162,10 @@ namespace PsgCtrl
         uint16_t    REVERSE        : 1;
         uint16_t    NUM_CH_IMPL    : 2;
         uint16_t    NUM_CH_USED    : 2;
-        uint16_t    CH_END_CNT     : 2;
         uint16_t    RH_LEN         : 1;
         uint16_t    CTRL_STAT      : 2;
         uint16_t    CTRL_STAT_PRE  : 2;
-        uint16_t                   : 3;
+        uint16_t                   : 5;
     };
 
     struct SYS_REQUEST
@@ -194,7 +193,6 @@ namespace PsgCtrl
     {
         SYS_STATUS  sys_status;
         SYS_REQUEST sys_request;
-        const char *p_mml_text;
         uint32_t    s_clock;
         uint8_t     proc_freq;
     };
@@ -301,6 +299,7 @@ namespace PsgCtrl
             );
     int set_mml(SLOT &slot, const char *p_mml, uint16_t mode);
     void control_psg(SLOT &slot);
+    void reset(SLOT &slot);
 }
 #pragma pack()
 

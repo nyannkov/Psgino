@@ -55,6 +55,8 @@ unsigned long time0;
 void setup() {
 
     pin_config();
+
+    psgino.Reset();
   
     psgino.SetMML(mml);
 

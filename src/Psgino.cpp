@@ -5,9 +5,10 @@
  */
 #include "Psgino.h"
 
-Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq)
+Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
 {
     this->p_write = write;
+    this->p_reset = reset;
     PsgCtrl::init_slot( this->slot0
                      , (uint32_t)(fs_clock*100+0.5F)
                      , proc_freq
@@ -56,7 +57,7 @@ Psgino::PlayStatus Psgino::GetStatus()
 
 void Psgino::Proc()
 {
-    uint16_t addr;
+    uint8_t addr;
     PsgCtrl::control_psg(this->slot0);
 
     if ( this->p_write == nullptr )
@@ -76,8 +77,27 @@ void Psgino::Proc()
     this->slot0.psg_reg.flags_mixer = 0;
 }
 
-PsginoZ::PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq)
-       : Psgino(write, fs_clock, proc_freq)
+void Psgino::Reset()
+{
+    PsgCtrl::reset(this->slot0);
+
+    if ( this->p_reset != nullptr )
+    {
+        this->p_reset();
+    }
+
+    if ( this->p_write != nullptr )
+    {
+        uint8_t addr;
+        for ( addr = 0; addr <= 0xF; addr++ )
+        {
+            this->p_write(addr, (addr == 0x7) ? 0x3F : 0x00);
+        }
+    }
+}
+
+PsginoZ::PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
+       : Psgino(write, fs_clock, proc_freq, reset)
 {
     PsgCtrl::init_slot( this->slot1
                      , (uint32_t)(fs_clock*100+0.5F)
@@ -128,7 +148,7 @@ void PsginoZ::StopSe()
 
 void PsginoZ::Proc()
 {
-    int16_t i;
+    uint8_t i;
     uint16_t masked_flags_addr;
     uint16_t mixer;
 
@@ -205,4 +225,10 @@ void PsginoZ::Proc()
             this->mixer_mask = 0;
         }
     }
+}
+
+void PsginoZ::Reset()
+{
+    PsgCtrl::reset(this->slot1);
+    Psgino::Reset();
 }

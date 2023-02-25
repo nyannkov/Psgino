@@ -21,22 +21,23 @@ namespace
     const char * read_number_ex(const char *p_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value, int32_t *p_out, /*@null@*/bool *p_is_omitted);
     const char * read_number(const char *p_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value, int32_t *p_out);
     int32_t get_param(const char **pp_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value);
-    int16_t get_tp_table_column_number(const char note_name);
+    uint8_t get_tp_table_column_number(const char note_name);
     const char * shift_half_note_number(const char *p_pos, const char *p_tail, int16_t note_num, int16_t *p_out);
-    uint16_t get_sus_volume(SLOT &slot, int16_t ch);
-    void trans_sw_env_state(SLOT &slot, int16_t ch);
-    void init_pitchbend(SLOT &slot, int16_t ch);
-    void proc_pitchbend(SLOT &slot, int16_t ch);
+    uint16_t get_sus_volume(SLOT &slot, uint8_t ch);
+    void trans_sw_env_state(SLOT &slot, uint8_t ch);
+    void init_pitchbend(SLOT &slot, uint8_t ch);
+    void proc_pitchbend(SLOT &slot, uint8_t ch);
     const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out);
     uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint8_t proc_freq);
     void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint8_t proc_freq);
-    void generate_tone(SLOT &slot, int16_t ch, const char **pp_pos, const char *p_tail);
-    int16_t decode_mml(SLOT &slot, int16_t ch);
-    void update_sw_env_volume(SLOT &slot, int16_t ch);
-    void proc_sw_env_gen(SLOT &slot, int16_t ch);
-    void proc_lfo(SLOT &slot, int16_t ch);
-    void init_ch_info(CHANNEL_INFO *p_ch_info);
-    void reset_mml(SLOT &slot);
+    void generate_tone(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
+    int16_t decode_mml(SLOT &slot, uint8_t ch);
+    void update_sw_env_volume(SLOT &slot, uint8_t ch);
+    void proc_sw_env_gen(SLOT &slot, uint8_t ch);
+    void proc_lfo(SLOT &slot, uint8_t ch);
+    void reset_ch_info(CHANNEL_INFO *p_ch_info);
+    void reset_psg(PSG_REG &psg_reg);
+    void rewind_mml(SLOT &slot);
 
     inline char to_upper_case(char c)
     {
@@ -294,9 +295,9 @@ namespace
         return r;
     }
 
-    int16_t get_tp_table_column_number(const char note_name)
+    uint8_t get_tp_table_column_number(const char note_name)
     {
-        int16_t col_num = -1;
+        uint8_t col_num;
         switch ( to_upper_case(note_name) )
         {
         case 'C':
@@ -361,12 +362,12 @@ namespace
         return p;
     }
 
-    uint16_t get_sus_volume(SLOT &slot, int16_t ch)
+    uint16_t get_sus_volume(SLOT &slot, uint8_t ch)
     {
         return ( (uint16_t)slot.ch_info_list[ch]->sw_env.sustain * slot.ch_info_list[ch]->tone.VOLUME+50 )/100;
     }
 
-    void trans_sw_env_state(SLOT &slot, int16_t ch)
+    void trans_sw_env_state(SLOT &slot, uint8_t ch)
     {
         if ( slot.ch_info_list[ch]->time.sw_env != 0 )
         {
@@ -423,7 +424,7 @@ namespace
         }
     }
 
-    void init_pitchbend(SLOT &slot, int16_t ch)
+    void init_pitchbend(SLOT &slot, uint8_t ch)
     {
         uint16_t tp_end;
         uint16_t tp_base;
@@ -465,7 +466,7 @@ namespace
         slot.ch_info_list[ch]->pitchbend.TP_D_FRAC = q6_tp_d & 0x3F;
     }
 
-    void proc_pitchbend(SLOT &slot, int16_t ch)
+    void proc_pitchbend(SLOT &slot, uint8_t ch)
     {
         uint32_t q6_tp;
         uint32_t q6_tp_d;
@@ -549,8 +550,8 @@ namespace
     {
         const char *p;
         int32_t octave;
-        uint8_t col_num;
         int16_t note_num;
+        uint8_t col_num;
 
         /* Change octave */
         octave = sat(default_octave, MIN_OCTAVE, MAX_OCTAVE);
@@ -780,7 +781,7 @@ namespace
         }
     }
 
-    void generate_tone(SLOT &slot, int16_t ch, const char **pp_pos, const char *p_tail)
+    void generate_tone(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail)
     {
         const char *p_pos;
         int16_t note_num;
@@ -1044,7 +1045,7 @@ namespace
         slot.ch_info_list[ch]->ch_status.LEGATO = is_start_legato_effect ? 1 : 0;
     }
 
-    int16_t decode_mml(SLOT &slot, int16_t ch)
+    int16_t decode_mml(SLOT &slot, uint8_t ch)
     {
         const char *p_pos;
         const char *p_head;
@@ -1294,7 +1295,7 @@ namespace
         return 0;
     }
 
-    void update_sw_env_volume(SLOT &slot, int16_t ch)
+    void update_sw_env_volume(SLOT &slot, uint8_t ch)
     {
         uint16_t vol;
         uint16_t top;
@@ -1387,7 +1388,7 @@ namespace
         slot.ch_info_list[ch]->sw_env.VOL_FRAC = vol&0xFFF;
     }
 
-    void proc_sw_env_gen(SLOT &slot, int16_t ch)
+    void proc_sw_env_gen(SLOT &slot, uint8_t ch)
     {
         uint8_t vol;
         if ( slot.ch_info_list[ch]->time.sw_env > 0 )
@@ -1409,7 +1410,7 @@ namespace
         update_sw_env_volume(slot, ch);
     }
 
-    void proc_lfo(SLOT &slot, int16_t ch)
+    void proc_lfo(SLOT &slot, uint8_t ch)
     {
         uint8_t tp_hi;
         uint8_t tp_lo;
@@ -1498,7 +1499,7 @@ namespace
         }
     }
 
-    void init_ch_info(CHANNEL_INFO *p_ch_info)
+    void reset_ch_info(CHANNEL_INFO *p_ch_info)
     {
         *p_ch_info = (CHANNEL_INFO){};
         p_ch_info->tone.tempo = DEFAULT_TEMPO;
@@ -1509,10 +1510,20 @@ namespace
         p_ch_info->tone.BIAS = DEFAULT_BIAS_LEVEL+BIAS_LEVEL_OFS;
     }
 
-    void reset_mml(SLOT &slot)
+    void reset_psg(PSG_REG &psg_reg)
     {
-        int16_t i;
-        int16_t ch;
+        uint8_t i;
+        for ( i = 0; i < 16; i++ )
+        {
+            psg_reg.data[i] = 0;
+        }
+        psg_reg.data[0x7]   = 0x3F;
+    }
+
+    void rewind_mml(SLOT &slot)
+    {
+        uint8_t i;
+        uint8_t ch;
         const char *p_mml_head;
         uint16_t mml_len;
 
@@ -1527,7 +1538,7 @@ namespace
             p_mml_head = slot.ch_info_list[ch]->mml.p_mml_head;
             mml_len = slot.ch_info_list[ch]->mml.mml_len;
 
-            init_ch_info(slot.ch_info_list[ch]);
+            reset_ch_info(slot.ch_info_list[ch]);
 
             slot.ch_info_list[ch]->mml.p_mml_head = p_mml_head;
             slot.ch_info_list[ch]->mml.mml_len = mml_len;
@@ -1546,7 +1557,7 @@ namespace PsgCtrl
             , CHANNEL_INFO  *p_ch2
             )
     {
-        int16_t i;
+        uint8_t i;
         CHANNEL_INFO *p_list[NUM_CHANNEL] = { p_ch0, p_ch1, p_ch2 };
 
         slot = (SLOT){};
@@ -1564,7 +1575,7 @@ namespace PsgCtrl
 
             if ( p_list[i] != nullptr )
             {
-                init_ch_info(p_list[i]);
+                reset_ch_info(p_list[i]);
                 slot.gl_info.sys_status.NUM_CH_IMPL++;
             }
             else
@@ -1573,15 +1584,13 @@ namespace PsgCtrl
             }
         }
 
-        slot.psg_reg.data[0x7]   = 0x3F;
-        slot.psg_reg.flags_addr  = 1<<0x7;
-        slot.psg_reg.flags_mixer = 0x7;
+        reset_psg(slot.psg_reg);
     }
 
     int set_mml(SLOT &slot, const char *p_mml, uint16_t mode)
     {
-        int16_t i;
-        int16_t ch;
+        uint8_t i;
+        uint8_t ch;
 
         if ( p_mml == nullptr )
         {
@@ -1592,7 +1601,6 @@ namespace PsgCtrl
 
         skip_white_space(&p_mml);
 
-        slot.gl_info.p_mml_text = p_mml;
         slot.gl_info.sys_status.NUM_CH_USED = 0;
 
         for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_IMPL; i++ )
@@ -1619,11 +1627,32 @@ namespace PsgCtrl
         return 0;
     }
 
+    void reset(SLOT &slot)
+    {
+        uint8_t i;
+        for ( i = 0; i < NUM_CHANNEL; i++ )
+        {
+            if ( slot.ch_info_list[i] != nullptr )
+            {
+                reset_ch_info(slot.ch_info_list[i]);
+            }
+        }
+
+        slot.gl_info.sys_status.SET_MML = 0;
+        slot.gl_info.sys_status.NUM_CH_USED = 0;
+        slot.gl_info.sys_status.CTRL_STAT = CTRL_STAT_STOP;
+        slot.gl_info.sys_status.CTRL_STAT_PRE = CTRL_STAT_STOP;
+        slot.gl_info.sys_request.CTRL_REQ = CTRL_REQ_STOP;
+        slot.gl_info.sys_request.CTRL_REQ_FLAG = 0;
+
+        reset_psg(slot.psg_reg);
+    }
+
     void control_psg(SLOT &slot)
     {
-        int16_t i;
-        int16_t ch;
-        int16_t decode_end_cnt = 0;
+        uint8_t i;
+        uint8_t ch;
+        uint8_t decode_end_cnt = 0;
 
         slot.gl_info.sys_status.CTRL_STAT_PRE = slot.gl_info.sys_status.CTRL_STAT;
 
@@ -1638,7 +1667,7 @@ namespace PsgCtrl
 
             if ( slot.gl_info.sys_request.CTRL_REQ == CTRL_REQ_PLAY )
             {
-                reset_mml(slot);
+                rewind_mml(slot);
                 slot.gl_info.sys_status.CTRL_STAT = CTRL_STAT_PLAY;
             }
             else
@@ -1648,7 +1677,7 @@ namespace PsgCtrl
                 {
                     ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
                     slot.psg_reg.data[0x7]   |= 0x9<<ch;
-                    slot.psg_reg.flags_mixer  = 0x1<<ch;
+                    slot.psg_reg.flags_mixer |= 0x1<<ch;
                 }
                 slot.psg_reg.flags_addr  = 1<<0x7;
             }
