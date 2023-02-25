@@ -76,7 +76,7 @@ void setup() {
 
     pin_config();
 
-    psgino.Reset();
+    psgino_z.Reset();
 
     psgino_z.SetMML(mml);
 
