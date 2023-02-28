@@ -1233,6 +1233,23 @@ namespace
                 }
                 break;
 
+            case '|':
+                if ( slot.ch_info_list[ch]->mml.loop_times[slot.ch_info_list[ch]->ch_status.LOOP_DEPTH - 1] == 1 )
+                {
+                    for (/*DO NOTHING*/ ; p_pos < p_tail; p_pos++ )
+                    {
+                        if ( p_pos[0] == ']' )
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    p_pos++;
+                }
+                break;
+
             case ']':
                 if ( slot.ch_info_list[ch]->ch_status.LOOP_DEPTH > 0 )
                 {

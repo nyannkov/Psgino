@@ -20,7 +20,7 @@ This document describes MML commands for Psgino.
 |[&gt;](#gt)|Increase the octave value set by O-command. |
 |[,](#comma)|MML is concatenated into a chord. |
 |[&](#-octave-settings)|Plays like slurs and ties. |
-|[[]](#-loop-number--)|Specify the loop section. |
+|[[|]](#-loop-number--)|Specify the loop section. |
 |[$E](#e-enabled)|Set ON/OFF of volume control by software envelope. |
 |[$A](#a-attack)|Specifies the attack time of the software envelope. |
 |[$H](#h-hold)|Specifies the hold time of the software envelope. |
@@ -256,22 +256,23 @@ By connecting A-G commands with &, you can perform slurs and ties.
 A2R2 A4&A4R2 A2&>A0R2 A2&<A0R2
 ```
 
-### [ [&lt;loop-number&gt;] ... ]
+### [ [&lt;loop-number&gt;] ... [|] ... ]
 
-Loop playback of MML in []. Loops can be nested up to 3 levels. Loop symbols after the 4th row are ignored.
+Loop playback of MML in []. Loops can be nested up to 3 levels. Loop symbols after the 4th level are ignored.
+A "|" symbol may also be inserted in the loop section. This symbol serves as a break statement for the inserted loop section.
+However, this symbol functions as a break statement only for the last loop.
 
 |Values|Description|
 |--|--|
 |&lt;loop-number&gt;|Specify the loop count in the range from 0 to 255. However, if 0 is specified, it will be an infinite loop. If this value is omitted, the loop count will be 1.|
 
-**Example:**
+**Example1:**
 ```
-[3
-  [2
-    L4CDER4
-  ]
-  L4GEDCDEDR4
-]
+O3[3 C&>C0]
+```
+**Example2:**
+```
+[2 [2 L4CDER4 ] L4GEDCDE|DR4 ]CR4
 ```
 
 ## Software envelope generator
