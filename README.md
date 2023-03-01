@@ -1,6 +1,6 @@
 # Psgino
 
-Psgino is a library for controlling PSG with MML.
+Psgino is a library for controlling PSG (AY-3-8910 and its equivalent) with MML.
 This document briefly describes the classes provided by this library and how to use them. 
 For MML description rules, see [MML.md](/MML.md).
 
