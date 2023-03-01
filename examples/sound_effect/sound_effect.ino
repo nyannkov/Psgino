@@ -9,8 +9,8 @@
 /*
  * Please define one of the following macros depending on the PGS to be used.
  */
-//#define     AY_3_8910
-#define     YMZ294
+#define     AY_3_8910
+//#define     YMZ294
 
 /*
  * Funiculì funiculà
@@ -29,7 +29,7 @@ const char mml[] =
     "],"
     "T130"
     "[0"  
-        "$E1$A0$H100$D100$S80$F2000" "V11L4O4"
+        "$E1$A0$H100$D100$S80$F2000" "V13L4O4"
         "[7" "G8.G16G8.G16]F8.F16F8.F16"
         "$S100$F2000"
         "D2C#2C2A2"
