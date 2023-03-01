@@ -269,10 +269,12 @@ However, this symbol functions as a break statement only for the last loop.
 **Example1:**
 ```
 O3[3 C&>C0]
+
 ```
 **Example2:**
 ```
-[2 [2 L4CDER4 ] L4GEDCDE|DR4 ]CR4
+[4 CD|ER4] CR4
+
 ```
 
 ## Software envelope generator
