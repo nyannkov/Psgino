@@ -1731,12 +1731,16 @@ namespace PsgCtrl
             }
             if ( slot.ch_info_list[ch]->time.gate == 0 )
             {
-                /* Mute tone and noise */
-                if ( ((slot.psg_reg.data[0x7]>>ch)&0x9) != 0x9 )
+                if ( ( slot.ch_info_list[ch]->tone.GATE_TIME < 7 )
+                ||   ( slot.ch_info_list[ch]->ch_status.DECODE_END == 1 ) )
                 {
-                    slot.psg_reg.data[0x7]   |= (0x9<<ch);    
-                    slot.psg_reg.flags_addr  |= 1<<0x7;
-                    slot.psg_reg.flags_mixer |= (1<<ch);
+                    /* Mute tone and noise */
+                    if ( ((slot.psg_reg.data[0x7]>>ch)&0x9) != 0x9 )
+                    {
+                        slot.psg_reg.data[0x7]   |= (0x9<<ch);    
+                        slot.psg_reg.flags_addr  |= 1<<0x7;
+                        slot.psg_reg.flags_mixer |= (1<<ch);
+                    }
                 }
             }
 
