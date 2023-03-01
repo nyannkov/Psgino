@@ -136,6 +136,15 @@ void pin_config() {
 
 void psg_write(uint8_t addr, uint8_t data) {
 
+    /*
+     * NOTE:
+     *
+     * The associative delay time of the bus signals (BDIR, BC1, BC2) 
+     * must be less than 50 ns. Therefore, when controlling these logics 
+     * one by one with digitalWrite(), care must be taken in the order of
+     * the signals whose logic is to be changed.
+     */
+
     /* 
      * BDIR BC2 BC1
      *    0   0   0   NACT (INACTIVE)
