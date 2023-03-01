@@ -20,7 +20,7 @@ This document describes MML commands for Psgino.
 |[&gt;](#gt)|Increase the octave value set by O-command. |
 |[,](#comma)|MML is concatenated into a chord. |
 |[&](#-octave-settings)|Plays like slurs and ties. |
-|[[|]](#-loop-number--)|Specify the loop section. |
+|[[],\|](#-loop-number----)|Specify the loop section. |
 |[$E](#e-enabled)|Set ON/OFF of volume control by software envelope. |
 |[$A](#a-attack)|Specifies the attack time of the software envelope. |
 |[$H](#h-hold)|Specifies the hold time of the software envelope. |
