@@ -1236,7 +1236,7 @@ namespace
             case '|':
                 if ( slot.ch_info_list[ch]->mml.loop_times[slot.ch_info_list[ch]->ch_status.LOOP_DEPTH - 1] == 1 )
                 {
-                    for (/*DO NOTHING*/ ; p_pos < p_tail; p_pos++ )
+                    for ( p_pos = p_pos+1 ; p_pos < p_tail; p_pos++ )
                     {
                         if ( p_pos[0] == ']' )
                         {

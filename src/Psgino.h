@@ -6,7 +6,7 @@
 #ifndef PSGINO_H
 #define PSGINO_H
 
-#include "psg_ctrl.h"
+#include "./psg_ctrl/psg_ctrl.h"
 
 class Psgino
 {

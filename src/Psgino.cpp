@@ -58,12 +58,13 @@ Psgino::PlayStatus Psgino::GetStatus()
 void Psgino::Proc()
 {
     uint8_t addr;
-    PsgCtrl::control_psg(this->slot0);
 
     if ( this->p_write == nullptr )
     {
         return;
     }
+
+    PsgCtrl::control_psg(this->slot0);
 
     for ( addr = 0; addr <= 0xF; addr++ )
     {
