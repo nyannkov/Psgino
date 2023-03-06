@@ -5,18 +5,18 @@
  */
 #include <Arduino.h>
 #include <Psgino.h>
-#include <PsginoSampleDrivers.h>
 
 /*
  * Please define one of the following macros depending on the PGS to be used.
  */
-#define     USE_AY_3_8910
-//#define     USE_YMZ294
+#define   PSGINO_USE_SAMPLE_DRIVER_AY_3_8910
+//#define   PSGINO_USE_SAMPLE_DRIVER_YMZ294
+#include <PsginoSampleDrivers.h>
 
 
-#if defined(USE_AY_3_8910)
+#if defined(PSGINO_USE_SAMPLE_DRIVER_AY_3_8910)
 const auto& psg_driver = PsginoSampleDrivers::DriverAY_3_8910();
-#elif defined(USE_YMZ294)
+#elif defined(PSGINO_USE_SAMPLE_DRIVER_YMZ294)
 const auto& psg_driver = PsginoSampleDrivers::DriverYMZ294();
 #else
 #error Choose the PSG to use by defining the macro for it.
