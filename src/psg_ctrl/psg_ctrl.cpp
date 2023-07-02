@@ -27,7 +27,7 @@ namespace
     void trans_sw_env_state(SLOT &slot, uint8_t ch);
     void init_pitchbend(SLOT &slot, uint8_t ch);
     void proc_pitchbend(SLOT &slot, uint8_t ch);
-    const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out);
+    const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out, int16_t start_note_num);
     uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint8_t proc_freq);
     void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint8_t proc_freq);
     void generate_tone(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
@@ -546,12 +546,13 @@ namespace
         slot.ch_info_list[ch]->pitchbend.TP_FRAC = q6_tp&0x3F;
     }
 
-    const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out)
+    const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out, int16_t start_note_num)
     {
         const char *p;
         int32_t octave;
         int16_t note_num;
         uint8_t col_num;
+        bool is_end_detected = false;
 
         /* Change octave */
         octave = sat(default_octave, MIN_OCTAVE, MAX_OCTAVE);
@@ -582,20 +583,31 @@ namespace
             {
                 continue;
             }
+            else if ( ('A' <= *p ) && ( *p <= 'G' ) )
+            {
+                is_end_detected = true;
+                break;
+            }
             else
             {
                 break;
             }
         }
 
-        col_num = get_tp_table_column_number(*p);
-        note_num = (int32_t)((uint32_t)col_num&0xFFu) + (octave-1)*12;
-        /* Shift Note-Number */
-        p = shift_half_note_number( p+1
-                                  , p_tail
-                                  , note_num
-                                  , &note_num);
-
+        if ( is_end_detected )
+        {
+            col_num = get_tp_table_column_number(*p);
+            note_num = (int32_t)((uint32_t)col_num&0xFFu) + (octave-1)*12;
+            /* Shift Note-Number */
+            p = shift_half_note_number( p+1
+                                      , p_tail
+                                      , note_num
+                                      , &note_num);
+        }
+        else
+        {
+            note_num = start_note_num;
+        }
         *p_out = note_num;
 
         return p_pos;
@@ -854,7 +866,8 @@ namespace
                 p_pos = get_legato_end_note_num( p_pos+1
                                                , p_tail
                                                , (int32_t)slot.ch_info_list[ch]->tone.OCTAVE+1
-                                               , &legato_end_note_num );
+                                               , &legato_end_note_num 
+                                               , note_num);
             }
             else
             {
