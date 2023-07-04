@@ -115,6 +115,15 @@ PlaySe() and StopSe() methods can be used to start and stop playing sound effect
 
 Note that PsginoZ uses the C channel of PSG (ch=2 in the source code) for sound effect generation. Therefore, if a sound effect is generated when three channels (A, B and C) are in use during BGM playback, the BGM will temporarily play on two channels (A and B).
 
+## Demonstration
+
+### Sound effect generation
+
+This URL is a link to a video of an example ([sound_effect.ino](/examples/sound_effect)) running with the YMZ294 and Arduino UNO R4 Minima.
+(The song played in the video is Funiculì funiculà, composed by Luigi Denza.)
+
+https://github.com/nyannkov/Psgino/assets/54160654/5bbb3513-4fbd-44b6-9d54-eeb37ceb350f
+
 ## License
 
 MIT License.
