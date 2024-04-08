@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2023 nyannkov
  */
+#include <stdlib.h>
 #include "psg_ctrl.h"
 
 namespace
@@ -15,6 +16,7 @@ namespace
     uint16_t ms2tk(uint32_t time_ms, uint8_t proc_freq);
     int16_t sat(int32_t x, int32_t min, int32_t max);
     void skip_white_space(const char **pp_text);
+    bool parse_mml_header(SLOT &slot, const char **pp_text);
     const char * count_dot(const char *p_pos, const char *p_tail, uint8_t *p_out);
     uint16_t shift_tp(uint16_t tp, int16_t bias);
     uint16_t calc_tp(int16_t n, uint32_t s_clock);
@@ -107,6 +109,64 @@ namespace
             (*pp_text)++;
             n--;
         }
+    }
+
+    bool parse_mml_header(SLOT &slot, const char **pp_text)
+    {
+        const char *p_pos;
+        bool parse_cont;
+        long value;
+
+        if ( **pp_text != ':' )
+        {/* MML header sections must start with a colon (:). */
+
+            /* The header is considered as omitted and treated as normal in processing. */
+            return true;
+        }
+
+        p_pos = *pp_text + 1;
+
+        if ( to_upper_case(*p_pos) == 'V' )
+        { /* The MML version number must start immediately after the colon. */
+            value = strtol(&p_pos[1], (char**)&p_pos, 0);
+            /* Here is a provisional implementation. This processing will change according to the MML version upgrade. */
+            if ( value == 1 )
+            {
+                slot.gl_info.mml_version = 1;
+            }
+        }
+
+        parse_cont = true;
+        while (parse_cont)
+        {
+            switch ( to_upper_case(*p_pos) )
+            {
+            case 'M':
+                value = strtol(&p_pos[1], (char**)&p_pos, 0);
+                slot.gl_info.sys_status.RH_LEN = (( value & 0x1 ) != 0) ? 1 : 0;
+                break;
+
+            case ';':
+                /* End of MML header section. */
+                p_pos++;
+                parse_cont = false;
+                break;
+
+            case '\0':
+                /* Parse failed. */
+                parse_cont = false;
+                break;
+
+            default:
+                /* Unknown settings will be ignored. */
+                p_pos++;
+                break;
+            }
+        }
+
+        *pp_text = p_pos;
+
+        return ( **pp_text != '\0' );
     }
 
     const char * count_dot(const char *p_pos, const char *p_tail, uint8_t *p_out)
@@ -1627,9 +1687,17 @@ namespace PsgCtrl
             return -1;
         }
 
+        skip_white_space(&p_mml);
+
+        /* Set default values. */
+        slot.gl_info.mml_version = DEFAULT_MML_VERSION;
         slot.gl_info.sys_status.RH_LEN = (( mode & 0x1 ) != 0) ? 1 : 0;
 
-        skip_white_space(&p_mml);
+        /* Parse MML header section. */
+        if ( !parse_mml_header(slot, &p_mml) )
+        {
+            return -2;
+        }
 
         slot.gl_info.sys_status.NUM_CH_USED = 0;
 
