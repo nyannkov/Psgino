@@ -12,6 +12,7 @@
 #pragma pack(1)
 namespace PsgCtrl
 {
+    const uint8_t DEFAULT_MML_VERSION           = (1);
     const int16_t NUM_CHANNEL                   = (3);
 
     const int16_t CTRL_STAT_STOP                = (0);
@@ -195,6 +196,7 @@ namespace PsgCtrl
         SYS_REQUEST sys_request;
         uint32_t    s_clock;
         uint8_t     proc_freq;
+        uint8_t     mml_version;
     };
 
     struct MML_INFO
