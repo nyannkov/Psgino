@@ -5,18 +5,13 @@
  */
 #include "Psgino.h"
 
+Psgino::Psgino()
+{
+}
+
 Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
 {
-    this->p_write = write;
-    this->p_reset = reset;
-    PsgCtrl::init_slot( this->slot0
-                     , (uint32_t)(fs_clock*100+0.5F)
-                     , proc_freq
-                     , false
-                     , &this->ch0
-                     , &this->ch1
-                     , &this->ch2
-                     );
+    Psgino::Initialize(write, fs_clock, proc_freq, reset);
 }
 
 void Psgino::SetMML(const char *mml, uint16_t mode)
@@ -54,6 +49,20 @@ Psgino::PlayStatus Psgino::GetStatus()
         return Psgino::PlayStop;
     }
 }
+
+void Psgino::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
+{
+    this->p_write = write;
+    this->p_reset = reset;
+    PsgCtrl::init_slot( this->slot0
+                     , (uint32_t)(fs_clock*100+0.5F)
+                     , proc_freq
+                     , false
+                     , &this->ch0
+                     , &this->ch1
+                     , &this->ch2
+                     );
+ }
 
 void Psgino::Proc()
 {
@@ -95,6 +104,11 @@ void Psgino::Reset()
             this->p_write(addr, (addr == 0x7) ? 0x3F : 0x00);
         }
     }
+}
+
+PsginoZ::PsginoZ()
+       : Psgino()
+{
 }
 
 PsginoZ::PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
@@ -145,6 +159,21 @@ void PsginoZ::StopSe()
 {
     this->slot1.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_REQ_STOP;
     this->slot1.gl_info.sys_request.CTRL_REQ_FLAG = 1;
+}
+
+void PsginoZ::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
+{
+    Psgino::Initialize(write, fs_clock, proc_freq, reset);
+
+    PsgCtrl::init_slot( this->slot1
+                     , (uint32_t)(fs_clock*100+0.5F)
+                     , proc_freq
+                     , true
+                     , &this->ch0_se
+                     );
+
+    this->reg_mask = 0;
+    this->mixer_mask = 0;
 }
 
 void PsginoZ::Proc()

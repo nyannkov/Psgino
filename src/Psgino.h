@@ -11,6 +11,7 @@
 class Psgino
 {
 public:
+    Psgino();
     Psgino(void (*write)(uint8_t addr, uint8_t data)
          , float fs_clock
          , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
@@ -21,6 +22,11 @@ public:
     void Stop();
     enum PlayStatus { PlayStop, Playing, PlayEnd };
     PlayStatus GetStatus();
+    virtual void Initialize(void (*write)(uint8_t addr, uint8_t data)
+         , float fs_clock
+         , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
+         , void (*reset)() = nullptr
+         );
     virtual void Proc();
     virtual void Reset();
 
@@ -38,6 +44,7 @@ private:
 class PsginoZ : public Psgino
 {
 public:
+    PsginoZ();
     PsginoZ(void (*write)(uint8_t addr, uint8_t data)
           , float fs_clock
           , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
@@ -47,6 +54,11 @@ public:
     void PlaySe();
     void StopSe();
     PlayStatus GetSeStatus();
+    void Initialize(void (*write)(uint8_t addr, uint8_t data)
+         , float fs_clock
+         , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
+         , void (*reset)() = nullptr
+         ) override;
     void Proc() override;
     void Reset() override;
 
