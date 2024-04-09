@@ -50,6 +50,11 @@ Psgino::PlayStatus Psgino::GetStatus()
     }
 }
 
+void Psgino::SetUserCallback(void (*cb)(uint8_t ch, int32_t params))
+{
+    PsgCtrl::set_user_callback(this->slot0, cb);
+}
+
 void Psgino::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
 {
     this->p_write = write;
@@ -159,6 +164,11 @@ void PsginoZ::StopSe()
 {
     this->slot1.gl_info.sys_request.CTRL_REQ = PsgCtrl::CTRL_REQ_STOP;
     this->slot1.gl_info.sys_request.CTRL_REQ_FLAG = 1;
+}
+
+void PsginoZ::SetSeUserCallback(void (*cb)(uint8_t ch, int32_t params))
+{
+    PsgCtrl::set_user_callback(this->slot1, cb);
 }
 
 void PsginoZ::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())

@@ -32,6 +32,7 @@ namespace
     const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out, int16_t start_note_num);
     uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint8_t proc_freq);
     void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint8_t proc_freq);
+    void decode_atsign(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
     void generate_tone(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
     int16_t decode_mml(SLOT &slot, uint8_t ch);
     void update_sw_env_volume(SLOT &slot, uint8_t ch);
@@ -1162,6 +1163,9 @@ namespace
             case '$':
                 decode_dollar(slot.ch_info_list[ch], &p_pos, p_tail, slot.gl_info.proc_freq);
                 break;
+            case '@':
+                decode_atsign(slot, ch, &p_pos, p_tail);
+                break;
 
             case 'T':
                 param = get_param(
@@ -1383,6 +1387,31 @@ namespace
         }
 
         return 0;
+    }
+
+    void decode_atsign(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail)
+    {
+        int32_t param;
+        (*pp_pos)++;
+        if ( *pp_pos >= p_tail )
+        {
+            return;
+        }
+
+        switch ( to_upper_case(**pp_pos) )
+        {
+            case 'C':
+                param = (int32_t)strtol((*pp_pos+1), (char**)pp_pos, 10);
+                if ( slot.cb_info.user_callback )
+                {
+                    slot.cb_info.user_callback(ch, param);
+                }
+                break;
+
+            default:
+                (*pp_pos)++;
+                break;
+        }
     }
 
     void update_sw_env_volume(SLOT &slot, uint8_t ch)
@@ -1657,6 +1686,8 @@ namespace PsgCtrl
         slot.gl_info.sys_status.NUM_CH_IMPL = 0;
         slot.gl_info.proc_freq = (proc_freq != 0) ? proc_freq : PsgCtrl::DEFAULT_PROC_FREQ;
 
+        slot.cb_info.user_callback = nullptr;
+
         for ( i = 0; i < NUM_CHANNEL; i++ )
         {
             slot.ch_info_list[
@@ -1723,6 +1754,11 @@ namespace PsgCtrl
         slot.gl_info.sys_status.SET_MML = 1;
 
         return 0;
+    }
+
+    void set_user_callback(SLOT &slot, void (*callback)(uint8_t ch, int32_t param))
+    {
+        slot.cb_info.user_callback = callback;
     }
 
     void reset(SLOT &slot)
