@@ -199,6 +199,11 @@ namespace PsgCtrl
         uint8_t     mml_version;
     };
 
+    struct CALLBACK_INFO
+    {
+        void (*user_callback)(uint8_t ch, int32_t param);
+    };
+
     struct MML_INFO
     {
         const char *p_mml_head;
@@ -287,6 +292,7 @@ namespace PsgCtrl
     struct SLOT
     {
         GLOBAL_INFO     gl_info;
+        CALLBACK_INFO   cb_info;
         CHANNEL_INFO   *ch_info_list[NUM_CHANNEL];
         PSG_REG         psg_reg;
     };
@@ -300,6 +306,7 @@ namespace PsgCtrl
             , CHANNEL_INFO  *p_ch2 = nullptr
             );
     int set_mml(SLOT &slot, const char *p_mml, uint16_t mode);
+    void set_user_callback(SLOT &slot, void (*callback)(uint8_t ch, int32_t param));
     void control_psg(SLOT &slot);
     void reset(SLOT &slot);
 }
