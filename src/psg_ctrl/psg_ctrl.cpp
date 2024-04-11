@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2023 nyannkov
  */
-#include <stdlib.h>
+#include <cstdlib>
 #include "psg_ctrl.h"
 
 namespace
@@ -129,7 +129,7 @@ namespace
 
         if ( to_upper_case(*p_pos) == 'V' )
         { /* The MML version number must start immediately after the colon. */
-            value = strtol(&p_pos[1], (char**)&p_pos, 0);
+            value = std::strtol(&p_pos[1], (char**)&p_pos, 10);
             /* Here is a provisional implementation. This processing will change according to the MML version upgrade. */
             if ( value == 1 )
             {
@@ -143,7 +143,7 @@ namespace
             switch ( to_upper_case(*p_pos) )
             {
             case 'M':
-                value = strtol(&p_pos[1], (char**)&p_pos, 0);
+                value = std::strtol(&p_pos[1], (char**)&p_pos, 10);
                 slot.gl_info.sys_status.RH_LEN = (( value & 0x1 ) != 0) ? 1 : 0;
                 break;
 
@@ -1427,7 +1427,7 @@ namespace
         switch ( to_upper_case(**pp_pos) )
         {
             case 'C':
-                param = (int32_t)strtol((*pp_pos+1), (char**)pp_pos, 10);
+                param = (int32_t)std::strtol((*pp_pos+1), (char**)pp_pos, 10);
                 if ( slot.cb_info.user_callback )
                 {
                     slot.cb_info.user_callback(ch, param);
