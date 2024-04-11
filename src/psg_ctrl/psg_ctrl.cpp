@@ -6,10 +6,11 @@
 #include <cstdlib>
 #include "psg_ctrl.h"
 
+
+namespace PsgCtrl
+{
 namespace
 {
-    using namespace PsgCtrl;
-
     uint16_t U16(uint8_t h, uint8_t l);
     uint8_t U16_HI(uint16_t x);
     uint8_t U16_LO(uint16_t x);
@@ -1677,8 +1678,8 @@ namespace
     }
 }
 
-namespace PsgCtrl
-{
+
+
     void init_slot( SLOT    &slot
             , uint32_t      s_clock
             , uint8_t       proc_freq
