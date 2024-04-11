@@ -1311,14 +1311,21 @@ namespace
                 break;
 
             case '|':
-                if ( slot.ch_info_list[ch]->mml.loop_times[slot.ch_info_list[ch]->ch_status.LOOP_DEPTH - 1] == 1 )
+                if ( slot.ch_info_list[ch]->ch_status.LOOP_DEPTH > 0 )
                 {
-                    for ( p_pos = p_pos+1 ; p_pos < p_tail; p_pos++ )
+                    if ( slot.ch_info_list[ch]->mml.loop_times[slot.ch_info_list[ch]->ch_status.LOOP_DEPTH - 1] == 1 )
                     {
-                        if ( p_pos[0] == ']' )
+                        for ( p_pos = p_pos+1 ; p_pos < p_tail; p_pos++ )
                         {
-                            break;
+                            if ( p_pos[0] == ']' )
+                            {
+                                break;
+                            }
                         }
+                    }
+                    else
+                    {
+                        p_pos++;
                     }
                 }
                 else
@@ -1337,6 +1344,10 @@ namespace
                     {
                         /* A loop with no message. */
                         /* Force exit from the loop. */
+                        if ( slot.ch_info_list[ch]->ch_status.LOOP_DEPTH == 1 )
+                        {
+                            slot.ch_info_list[ch]->mml.prim_loop_counter = 0;
+                        }
                         slot.ch_info_list[ch]->mml.loop_times[loop_index] = 0;
                         slot.ch_info_list[ch]->ch_status.LOOP_DEPTH = loop_index;
                         p_pos++;
@@ -1344,6 +1355,10 @@ namespace
                     else if ( slot.ch_info_list[ch]->mml.loop_times[loop_index] == 1 )
                     {
                         /* Loop end */
+                        if ( slot.ch_info_list[ch]->ch_status.LOOP_DEPTH == 1 )
+                        {
+                            slot.ch_info_list[ch]->mml.prim_loop_counter = 0;
+                        }
                         slot.ch_info_list[ch]->mml.loop_times[loop_index] = 0;
                         slot.ch_info_list[ch]->ch_status.LOOP_DEPTH = loop_index;
                         p_pos++;
@@ -1358,6 +1373,17 @@ namespace
                         {
                             /* Infinite loop */
                         }
+
+                        if ( slot.ch_info_list[ch]->ch_status.LOOP_DEPTH == 1 )
+                        {
+                            if ( slot.ch_info_list[ch]->ch_status.END_PRI_LOOP == 1 )
+                            {
+                                slot.ch_info_list[ch]->ch_status.END_PRI_LOOP = 0;
+                                slot.ch_info_list[ch]->mml.loop_times[loop_index] = 1;
+                            }
+                            slot.ch_info_list[ch]->mml.prim_loop_counter++;
+                        }
+
                         p_pos = p_head + slot.ch_info_list[ch]->mml.ofs_mml_loop_head[loop_index];
                     }
                 }
@@ -1649,6 +1675,7 @@ namespace
         slot.psg_reg.data[0x7]   = 0x3F;
         slot.psg_reg.flags_addr  = 1<<0x7;
         slot.psg_reg.flags_mixer = 0;
+        slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
         for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
         {
             ch = slot.gl_info.sys_status.REVERSE == 1 ? (NUM_CHANNEL-(i+1)) : i;
@@ -1661,6 +1688,7 @@ namespace
 
             slot.ch_info_list[ch]->mml.p_mml_head = p_mml_head;
             slot.ch_info_list[ch]->mml.mml_len = mml_len;
+            slot.ch_info_list[ch]->ch_status.END_PRI_LOOP = 0;
         }
     }
 }
@@ -1821,6 +1849,48 @@ namespace PsgCtrl
           || ( slot.gl_info.sys_status.CTRL_STAT == CTRL_STAT_END  ) )
         {
             return;
+        }
+
+        if ( slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG != 0 )
+        {
+            slot.gl_info.sys_status.FIN_PRI_LOOP_TRY = MAX_FIN_PRI_LOOP_TRY;
+            slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
+        }
+        if ( slot.gl_info.sys_status.FIN_PRI_LOOP_TRY > 0 )
+        {
+            bool fin_prim_loop;
+            slot.gl_info.sys_status.FIN_PRI_LOOP_TRY--;
+            if ( slot.gl_info.sys_status.FIN_PRI_LOOP_TRY > 0 )
+            {
+                uint8_t prim_loop_counter = slot.ch_info_list[
+                        (slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-1 : 0
+                    ]->mml.prim_loop_counter;
+
+                fin_prim_loop = true;
+                for ( i = 1; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
+                {
+                    ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
+                    if ( prim_loop_counter != slot.ch_info_list[ch]->mml.prim_loop_counter )
+                    {
+                        fin_prim_loop = false;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                fin_prim_loop = true;
+            }
+
+            if ( fin_prim_loop )
+            {
+                for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
+                {
+                    ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
+                    slot.ch_info_list[ch]->ch_status.END_PRI_LOOP = 1;
+                }
+                slot.gl_info.sys_status.FIN_PRI_LOOP_TRY = 0;
+            }
         }
 
         for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
