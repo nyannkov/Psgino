@@ -281,6 +281,7 @@ namespace
         int32_t n;
         int16_t sign;
         bool is_omitted;
+        const char *p_pos_next;
 
         if ( p_pos >= p_tail )
         {
@@ -288,44 +289,9 @@ namespace
             return p_tail;
         }
 
-        is_omitted = true;
-        switch ( *p_pos )
-        {
-        case '+':
-            sign = 1;
-            p_pos++;
-            is_omitted = false;
-            break;
+        n = std::strtol(p_pos, (char**)&p_pos_next, 10);
 
-        case '-':
-            sign = (-1);
-            p_pos++;
-            is_omitted = false;
-            break;
-
-        default:
-            sign = 1;
-            /*Leave p_pos as is.*/
-            break;
-        }
-
-        n = 0;
-        for (/*DO NOTHING*/; p_pos < p_tail ; p_pos++ )
-        {
-            if ( ('0' <= *p_pos) && (*p_pos <= '9') )
-            {
-                is_omitted = false;
-                n = sat( 
-                    10*n + (int32_t)(*p_pos-'0')*sign
-                  , -100000
-                  ,  100000
-                  );
-            }
-            else
-            {
-                break;
-            }
-        }
+        is_omitted = (p_pos == p_pos_next);
 
         if ( is_omitted )
         {
@@ -339,7 +305,12 @@ namespace
             *p_is_omitted = is_omitted;
         }
 
-        return p_pos;
+        if ( p_pos_next > p_tail )
+        {
+            p_pos_next = p_tail;
+        }
+
+        return p_pos_next;
     }
 
     const char * read_number(const char *p_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value, int32_t *p_out)
