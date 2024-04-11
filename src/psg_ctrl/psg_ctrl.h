@@ -61,6 +61,8 @@ namespace PsgCtrl
 
     const int16_t MAX_LOOP_NESTING_DEPTH        = (3);
 
+    const int16_t MAX_FIN_PRI_LOOP_TRY          = (15);
+
     const int16_t MIN_LOOP_TIMES                = (0);
     const int16_t MAX_LOOP_TIMES                = (255);
     const int16_t DEFAULT_LOOP_TIMES            = (1);
@@ -166,7 +168,8 @@ namespace PsgCtrl
         uint16_t    RH_LEN         : 1;
         uint16_t    CTRL_STAT      : 2;
         uint16_t    CTRL_STAT_PRE  : 2;
-        uint16_t                   : 5;
+        uint16_t    FIN_PRI_LOOP_TRY : 4;
+        uint16_t                   : 1;
     };
 
     struct SYS_REQUEST
@@ -174,7 +177,8 @@ namespace PsgCtrl
         uint8_t    CTRL_REQ        : 2;
         uint8_t                    : 6;
         uint8_t    CTRL_REQ_FLAG   : 1;
-        uint8_t                    : 7;
+        uint8_t    FIN_PRI_LOOP_FLAG : 1;
+        uint8_t                    : 6;
     };
 
     struct CH_STATUS
@@ -187,7 +191,8 @@ namespace PsgCtrl
         uint16_t    SW_ENV_STAT    : 3;
         uint16_t    PBEND_STAT     : 2;
         uint16_t    LOOP_DEPTH     : 2;
-        uint16_t                   : 2;
+        uint16_t    END_PRI_LOOP   : 1;
+        uint16_t                   : 1;
     };
 
     struct GLOBAL_INFO
@@ -211,6 +216,7 @@ namespace PsgCtrl
         uint16_t    ofs_mml_pos;
         uint16_t    ofs_mml_loop_head[MAX_LOOP_NESTING_DEPTH];
         uint8_t     loop_times[MAX_LOOP_NESTING_DEPTH];
+        uint8_t     prim_loop_counter;
     };
 
     struct TONE_INFO

@@ -111,6 +111,11 @@ void Psgino::Reset()
     }
 }
 
+void Psgino::FinishPrimaryLoop()
+{
+    this->slot0.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 1;
+}
+
 PsginoZ::PsginoZ()
        : Psgino()
 {

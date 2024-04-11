@@ -23,6 +23,7 @@ public:
     enum PlayStatus { PlayStop, Playing, PlayEnd };
     PlayStatus GetStatus();
     void SetUserCallback(void (*cb)(uint8_t ch, int32_t param));
+    void FinishPrimaryLoop();
     virtual void Initialize(void (*write)(uint8_t addr, uint8_t data)
          , float fs_clock
          , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
