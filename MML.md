@@ -256,11 +256,14 @@ By connecting A-G commands with &, you can perform slurs and ties.
 A2R2 A4&A4R2 A2&>A0R2 A2&<A0R2
 ```
 
-### [ [&lt;loop-number&gt;] ... [|] ... ]
+### _[_ [&lt;loop-number&gt;] ... [|] ... _]_
 
 Loop playback of MML in []. Loops can be nested up to 3 levels. Loop symbols after the 4th level are ignored.
 A "|" symbol may also be inserted in the loop section. This symbol serves as a break statement for the inserted loop section.
 However, this symbol functions as a break statement only for the last loop.
+
+**NOTE:**
+The primary loop of the MML registered with the SetMML() method can only be terminated using the FinishPrimaryLoop() method. When this method is called, if there are two or more remaining loop iterations, including the current one being executed, the number of remaining loop iterations is reduced to two. This method is primarily intended to be used when exiting infinite loops in BGM.
 
 |Values|Description|
 |--|--|
