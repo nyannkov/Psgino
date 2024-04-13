@@ -1,3 +1,9 @@
+Table of Contents
+
+- [MML commands](#mml-commands)
+- [Header section](#header-section)
+
+
 # MML commands
 
 This document describes MML commands for Psgino.
@@ -462,4 +468,33 @@ The function registered with SetUserCallback() is executed for MML registered wi
 T120L4O4CE@C1234G,
 T120L4O4EGB@C-999,
 T120L4O4@C0GB>D
+```
+
+# Header section
+
+To add a header to the beginning of the MML, you can do the following:
+
+:V <version-number> [ [_header-command_] ... ];
+
+The header starts with a colon and ends with a semicolon. If the header section is omitted, the MML is treated as version 1.
+
+**NOTE:** Currently, there is only one version of MML, which is version 1.
+
+## Header command
+
+### M &lt;mode-flags&gt;
+
+This command sets the mode-flags for the MML. Each field of the flags is as follows:
+
+|bit|Field|Description|
+|--|--|--|
+|15-1|-|Reserved.|
+|0|RH_LEN|Switches the default value when the R,H command omits the note length specification. <br> - 0: The default value for note length is 4. <br> - 1: The default note length is the value specified with the L command.|
+
+If this command is not executed, the mode flags will be set to the value specified by the argument mode.
+
+**Example:**
+```
+:V1M1;
+L4O4CEG.R8 N36N40N43.R8
 ```
