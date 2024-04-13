@@ -33,7 +33,7 @@ This document describes MML commands for Psgino.
 |[$T](#t-delay-dot)|Specifies the time from the start of sound output until the software LFO operates. |
 |[$B](#b-bias)|Bias the frequency of the output sound. |
 |[$P](#p-pitchbend-level)|Smoothly increases or decreases the frequency of the output sound until output stops. |
-
+|[@C](#c-data)|Invoke the user-defined callback function.|
 ## Basic command
 
 ### A-G [&lt;accidental&gt;] [&lt;length&gt;] [&lt;dot&gt;]
@@ -438,3 +438,25 @@ $P-360 CDEFGAB>C<
 $P360 CDEFGAB>C<
 ```
 
+### @C &lt;data&gt;
+
+Invoke the user-defined callback function. When decoding this command, synchronously invoke the registered callback function.
+The interface for the callback function is as follows:
+
+```
+void (*user_callback)(uint8_t ch, int32_t param);
+```
+Here, ch represents the channel number of the MML where this command is written, and param represents the parameter of this command.
+
+The function registered with SetUserCallback() is executed for MML registered with SetMML(), and for MML registered with SetSeMML(), the function registered with SetSeUserCallback() is executed.
+
+|Values|Description|
+|--|--|
+|&lt;data&gt;|Specify the value to be stored in the parameter of the callback function as int32_t type.|
+
+**Example:**
+```
+T120L4O4CE@C1234G,
+T120L4O4EGB@C-999,
+T120L4O4@C0GB>D
+```
