@@ -1,8 +1,7 @@
-Table of Contents
+# Table of Contents
 
 - [MML commands](#mml-commands)
 - [Header section](#header-section)
-
 
 # MML commands
 
