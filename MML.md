@@ -473,7 +473,7 @@ T120L4O4@C0GB>D
 
 To add a header to the beginning of the MML, you can do the following:
 
-:V <version-number> [ [_header-command_] ... ];
+:V &lt;version-number&gt; [ [_header-command_] ... ];
 
 The header starts with a colon and ends with a semicolon. If the header section is omitted, the MML is treated as version 1.
 
