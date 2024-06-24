@@ -58,7 +58,8 @@ Conversely, you can stop playing with the Stop() method. Also, the current playi
 
 These values are defined as enum PlayStatus types. In either of these states, when the Play() method is called, the MML is played from the beginning.
 
-Note that this library requires periodic calls to the Proc() method, as in the sample above. The default frequency is 100 Hz. If you wish to change the frequency, enter the desired value in Hz in the third argument (*proc_freq*) of Psgino constructor. However, if this value is too high or too low, it may not work properly.
+Note that this library requires periodic calls to the Proc() method, as in the sample above. The default frequency is 100 Hz. If you wish to change the frequency, enter the desired value in Hz in the third argument *proc_freq* of Psgino constructor. The resolution of note lengths is determined by this value. For example, if the tempo is 120 bpm, a 32nd note would be 120 bpm * 32 = 2 bps * 32 = 64 Hz, which is less than 100 Hz, so it can be played accurately. However, for a 64th note, it would be 128 Hz, which means it cannot be played accurately.
+If you want to play 64th notes at a tempo of 120 bpm, you need to set *proc_freq* to 128 Hz or higher and call the Proc() method at that frequency. Similarly, if you want to play 128th notes at 120 bpm, you need to set *proc_freq* to 256 Hz or higher.
 
 ### PsginoZ class
 

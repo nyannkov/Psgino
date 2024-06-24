@@ -121,7 +121,7 @@ This value can also be applied to the R and H commands depending on the value of
 
 |Values|Description|
 |--|--|
-|&lt;length&gt;|Specify the length of the sound from 1-64. 1 represents a whole note, 4 represents a quarter note.|
+|&lt;length&gt;|Specify the length of the sound from 1-128. 1 represents a whole note, 4 represents a quarter note.|
 |&lt;dot&gt;|Specifies a dot. The dot effect is the same as for A-G.|
 
 **Example:**
@@ -398,7 +398,7 @@ Specifies the time from the start of sound output until the LFO operates. This v
 
 |Values|Description|
 |--|--|
-|&lt;delay&gt;|Specifies the delay time of the LFO in the range from 0 to 64. If delay is non-zero, it uses the same calculations as the L command to determine the delay time. For example, if the delay is set to 4, the LFO operation will start after the time of one quarter note has passed after the start of sounding. If delay is 0, the delay time will be 0.|
+|&lt;delay&gt;|Specifies the delay time of the LFO in the range from 0 to 128. If delay is non-zero, it uses the same calculations as the L command to determine the delay time. For example, if the delay is set to 4, the LFO operation will start after the time of one quarter note has passed after the start of sounding. If delay is 0, the delay time will be 0.|
 |&lt;dot&gt;|Specifies a dot. The dot effect is the same as for A-G.|
 
 

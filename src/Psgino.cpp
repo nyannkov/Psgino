@@ -9,7 +9,7 @@ Psgino::Psgino()
 {
 }
 
-Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
+Psgino::Psgino(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())
 {
     Psgino::Initialize(write, fs_clock, proc_freq, reset);
 }
@@ -55,7 +55,7 @@ void Psgino::SetUserCallback(void (*cb)(uint8_t ch, int32_t params))
     PsgCtrl::set_user_callback(this->slot0, cb);
 }
 
-void Psgino::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
+void Psgino::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())
 {
     this->p_write = write;
     this->p_reset = reset;
@@ -121,7 +121,7 @@ PsginoZ::PsginoZ()
 {
 }
 
-PsginoZ::PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
+PsginoZ::PsginoZ(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())
        : Psgino(write, fs_clock, proc_freq, reset)
 {
     PsgCtrl::init_slot( this->slot1
@@ -176,7 +176,7 @@ void PsginoZ::SetSeUserCallback(void (*cb)(uint8_t ch, int32_t params))
     PsgCtrl::set_user_callback(this->slot1, cb);
 }
 
-void PsginoZ::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint8_t proc_freq, void (*reset)())
+void PsginoZ::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())
 {
     Psgino::Initialize(write, fs_clock, proc_freq, reset);
 
