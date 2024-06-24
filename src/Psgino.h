@@ -14,7 +14,7 @@ public:
     Psgino();
     Psgino(void (*write)(uint8_t addr, uint8_t data)
          , float fs_clock
-         , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
+         , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
          , void (*reset)() = nullptr
          );
     void SetMML(const char *mml, uint16_t mode = 0);
@@ -26,7 +26,7 @@ public:
     void FinishPrimaryLoop();
     virtual void Initialize(void (*write)(uint8_t addr, uint8_t data)
          , float fs_clock
-         , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
+         , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
          , void (*reset)() = nullptr
          );
     virtual void Proc();
@@ -49,7 +49,7 @@ public:
     PsginoZ();
     PsginoZ(void (*write)(uint8_t addr, uint8_t data)
           , float fs_clock
-          , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
+          , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
           , void (*reset)() = nullptr
           );
     void SetSeMML(const char *mml, uint16_t mode = 0);
@@ -59,7 +59,7 @@ public:
     void SetSeUserCallback(void (*cb)(uint8_t ch, int32_t param));
     void Initialize(void (*write)(uint8_t addr, uint8_t data)
          , float fs_clock
-         , uint8_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
+         , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
          , void (*reset)() = nullptr
          ) override;
     void Proc() override;

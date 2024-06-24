@@ -39,7 +39,7 @@ namespace PsgCtrl
     const int16_t LFO_STAT_RUN                  = (1);
 
     const int16_t MAX_LFO_PERIOD                = (10);       /* unit: sec. */
-    const uint8_t DEFAULT_PROC_FREQ             = (100);      /* Hz */
+    const uint16_t DEFAULT_PROC_FREQ            = (100);      /* Hz */
 
     const int16_t MIN_NOTE_NUMBER               = (0);
     const int16_t MAX_NOTE_NUMBER               = (95);
@@ -84,7 +84,7 @@ namespace PsgCtrl
     const int16_t DEFAULT_TEMPO                 = (120);
 
     const int16_t MIN_NOTE_LENGTH               = (1);
-    const int16_t MAX_NOTE_LENGTH               = (64);
+    const int16_t MAX_NOTE_LENGTH               = (128);
     const int16_t DEFAULT_NOTE_LENGTH           = (4);
 
     const uint16_t MAX_MML_TEXT_LEN             = (0xFFFE);
@@ -140,7 +140,7 @@ namespace PsgCtrl
     const int16_t DEFAULT_LFO_DEPTH             = (0);
 
     const int16_t MIN_LFO_DELAY                 = (0);
-    const int16_t MAX_LFO_DELAY                 = (64);
+    const int16_t MAX_LFO_DELAY                 = (128);
     const int16_t DEFAULT_LFO_DELAY             = (0);
 
     const int16_t MIN_PITCHBEND_LEVEL           = (-360*8);
@@ -200,7 +200,7 @@ namespace PsgCtrl
         SYS_STATUS  sys_status;
         SYS_REQUEST sys_request;
         uint32_t    s_clock;
-        uint8_t     proc_freq;
+        uint16_t    proc_freq;
         uint8_t     mml_version;
     };
 
@@ -305,7 +305,7 @@ namespace PsgCtrl
 
     void init_slot( SLOT    &slot
             , uint32_t      s_clock
-            , uint8_t       proc_freq
+            , uint16_t      proc_freq
             , bool          reverse
             , CHANNEL_INFO  *p_ch0
             , CHANNEL_INFO  *p_ch1 = nullptr

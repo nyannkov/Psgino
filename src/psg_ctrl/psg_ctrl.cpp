@@ -14,7 +14,7 @@ namespace
     uint16_t U16(uint8_t h, uint8_t l);
     uint8_t U16_HI(uint16_t x);
     uint8_t U16_LO(uint16_t x);
-    uint16_t ms2tk(uint32_t time_ms, uint8_t proc_freq);
+    uint16_t ms2tk(uint32_t time_ms, uint16_t proc_freq);
     int16_t sat(int32_t x, int32_t min, int32_t max);
     void skip_white_space(const char **pp_text);
     bool parse_mml_header(SLOT &slot, const char **pp_text);
@@ -31,8 +31,8 @@ namespace
     void init_pitchbend(SLOT &slot, uint8_t ch);
     void proc_pitchbend(SLOT &slot, uint8_t ch);
     const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out, int16_t start_note_num);
-    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint8_t proc_freq);
-    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint8_t proc_freq);
+    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint16_t proc_freq);
+    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint16_t proc_freq);
     void decode_atsign(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
     void generate_tone(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
     int16_t decode_mml(SLOT &slot, uint8_t ch);
@@ -81,7 +81,7 @@ namespace
         return (((x)>>0)&0xFF);
     }
 
-    uint16_t ms2tk(uint32_t time_ms, uint8_t proc_freq)
+    uint16_t ms2tk(uint32_t time_ms, uint16_t proc_freq)
     {
         uint16_t time_tk;
 
@@ -280,7 +280,6 @@ namespace
     const char * read_number_ex(const char *p_pos, const char *p_tail, int32_t min, int32_t max, int32_t default_value, int32_t *p_out, /*@null@*/bool *p_is_omitted)
     {
         int32_t n;
-        int16_t sign;
         bool is_omitted;
         const char *p_pos_next;
 
@@ -650,7 +649,7 @@ namespace
         return p_pos;
     }
     
-    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint8_t proc_freq)
+    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint16_t proc_freq)
     {
         uint32_t q12_time, q12_time_delta;
 
@@ -672,7 +671,7 @@ namespace
         return q12_time;
     }
 
-    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint8_t proc_freq)
+    void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint16_t proc_freq)
     {
         int32_t param;
         uint8_t dot_cnt;
@@ -1682,7 +1681,7 @@ namespace
 
     void init_slot( SLOT    &slot
             , uint32_t      s_clock
-            , uint8_t       proc_freq
+            , uint16_t      proc_freq
             , bool          reverse
             , CHANNEL_INFO  *p_ch0
             , CHANNEL_INFO  *p_ch1
