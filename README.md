@@ -125,6 +125,12 @@ This URL is a link to a video of an example ([sound_effect.ino](/examples/sound_
 
 https://github.com/nyannkov/Psgino/assets/54160654/5bbb3513-4fbd-44b6-9d54-eeb37ceb350f
 
+### Example using PSG emulator
+
+Currenlty publishing examples using a PSG emulator in the following repository.
+
+https://github.com/nyannkov/misc_arduino_sketches
+
 ## License
 
 MIT License.
