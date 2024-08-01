@@ -470,13 +470,13 @@ The function registered with SetUserCallback() is executed for MML registered wi
 
 |Values|Description|
 |--|--|
-|&lt;data&gt;|Specify the value to be stored in the parameter of the callback function as int32_t type.|
+|&lt;data&gt;|Specify the value to be stored in the parameter of the callback function as int32_t type. Enclosing data in parentheses allows for input in C-style octal and hexadecimal formats (e.g., 010, 0xF). |
 
 **Example:**
 ```
 T120L4O4CE@C1234G,
 T120L4O4EGB@C-999,
-T120L4O4@C0GB>D
+T120L4O4@C(0xF)G@C(010)B>D
 ```
 
 ## Header section

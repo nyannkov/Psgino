@@ -1419,7 +1419,12 @@ namespace
         switch ( to_upper_case(**pp_pos) )
         {
             case 'C':
-                param = (int32_t)std::strtol((*pp_pos+1), (char**)pp_pos, 10);
+                if ( *(*pp_pos+1) == '(' ) {
+                    param = (int32_t)std::strtol((*pp_pos+2), (char**)pp_pos, 0);
+                } else {
+                    param = (int32_t)std::strtol((*pp_pos+1), (char**)pp_pos, 10);
+                }
+
                 if ( slot.cb_info.user_callback )
                 {
                     slot.cb_info.user_callback(ch, param);
