@@ -27,7 +27,12 @@ namespace PsgCtrl
     const int16_t PBEND_STAT_TP_DOWN            = (2);
     const int16_t PBEND_STAT_END                = (3);
 
+    const uint16_t MIN_TP                       = (0);
     const uint16_t MAX_TP                       = (4095);
+
+    const int8_t MIN_TP_OFS                    = (100*-1);
+    const int8_t MAX_TP_OFS                    = (100);
+    const int8_t DEFAULT_TP_OFS                = (0);
 
     const int16_t SW_ENV_STAT_INIT_NOTE_ON      = (0);
     const int16_t SW_ENV_STAT_ATTACK            = (1);
@@ -223,6 +228,7 @@ namespace PsgCtrl
     {
         uint8_t     tempo;
         uint8_t     note_len;
+        int8_t      tp_ofs;
         uint8_t     OCTAVE     : 3;
         uint8_t     GATE_TIME  : 3;
         uint8_t     LEN_DOTS   : 2;
