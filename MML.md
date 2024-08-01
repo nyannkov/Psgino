@@ -37,6 +37,7 @@ This document describes MML commands for Psgino.
 |[$L](#l-low-frequency)|Sets the modulation frequency of the software LFO. |
 |[$T](#t-delay-dot)|Specifies the time from the start of sound output until the software LFO operates. |
 |[$B](#b-bias)|Bias the frequency of the output sound. |
+|[$O](#o-tp-ofs)|Sets the TP offset. |
 |[$P](#p-pitchbend-level)|Smoothly increases or decreases the frequency of the output sound until output stops. |
 |[@C](#c-data)|Invoke the user-defined callback function.|
 ### Basic command
@@ -430,6 +431,15 @@ AA
 V15L1O4
 A$B1A
 ```
+
+#### $O &lt;tp-ofs&gt;
+
+Sets the TP offset. The default value for tp-ofs is 0.
+
+|Values|Description|
+|--|--|
+|&lt;bias&gt;|Specify the tp-ofs in the range (-100) to 100. |
+
 
 #### $P &lt;pitchbend-level&gt;
 

@@ -15,7 +15,7 @@ namespace
     uint8_t U16_HI(uint16_t x);
     uint8_t U16_LO(uint16_t x);
     uint16_t ms2tk(uint32_t time_ms, uint16_t proc_freq);
-    int16_t sat(int32_t x, int32_t min, int32_t max);
+    int32_t sat(int32_t x, int32_t min, int32_t max);
     void skip_white_space(const char **pp_text);
     bool parse_mml_header(SLOT &slot, const char **pp_text);
     const char * count_dot(const char *p_pos, const char *p_tail, uint8_t *p_out);
@@ -90,7 +90,7 @@ namespace
         return time_tk;
     }
 
-    int16_t sat(int32_t x, int32_t min, int32_t max)
+    int32_t sat(int32_t x, int32_t min, int32_t max)
     {
         return( (x <= min ) ? min
               : (x >= max ) ? max
@@ -768,6 +768,17 @@ namespace
                 p_info->tone.BIAS = param + BIAS_LEVEL_OFS;
                 break;
 
+            case 'O':
+                param = get_param(
+                    pp_pos
+                  , p_tail
+                  , MIN_TP_OFS
+                  , MAX_TP_OFS
+                  , DEFAULT_TP_OFS
+                );
+                p_info->tone.tp_ofs = param;
+                break;
+
             case 'L':
                 param = get_param(
                     pp_pos
@@ -987,8 +998,12 @@ namespace
         {
             int16_t bias;
             bias = (int16_t)p_ch_info->tone.BIAS - BIAS_LEVEL_OFS;
-            /* Apply detune-level to tp. */
+            /* Apply bias-level to tp. */
             tp = shift_tp(calc_tp(note_num, slot.gl_info.s_clock), bias);
+
+            /* Apply the TP offset to the BIAS calculation result for fine adjustments, such as detuning. */
+            tp = (uint16_t)sat(tp + (int16_t)p_ch_info->tone.tp_ofs, MIN_TP, MAX_TP);
+
             if ( is_start_legato_effect )
             {
                 tp_end = shift_tp(calc_tp(legato_end_note_num, slot.gl_info.s_clock), bias);
@@ -1633,6 +1648,7 @@ namespace
         p_ch_info->tone.GATE_TIME = DEFAULT_GATE_TIME-1;
         p_ch_info->tone.VOLUME = DEFAULT_VOLUME_LEVEL;
         p_ch_info->tone.BIAS = DEFAULT_BIAS_LEVEL+BIAS_LEVEL_OFS;
+        p_ch_info->tone.tp_ofs = DEFAULT_TP_OFS;
     }
 
     void reset_psg(PSG_REG &psg_reg)
