@@ -84,9 +84,9 @@ namespace PsgCtrl
     const int16_t MAX_VOLUME_LEVEL              = (15);
     const int16_t DEFAULT_VOLUME_LEVEL          = (15);
 
-    const int16_t MIN_TEMPO                     = (32);
-    const int16_t MAX_TEMPO                     = (255);
-    const int16_t DEFAULT_TEMPO                 = (120);
+    const uint16_t MIN_TEMPO                    = (10);
+    const uint16_t MAX_TEMPO                    = (1000);
+    const uint16_t DEFAULT_TEMPO                = (120);
 
     const int16_t MIN_NOTE_LENGTH               = (1);
     const int16_t MAX_NOTE_LENGTH               = (128);
@@ -226,7 +226,7 @@ namespace PsgCtrl
 
     struct TONE_INFO
     {
-        uint8_t     tempo;
+        uint16_t    tempo;
         uint8_t     note_len;
         int8_t      tp_ofs;
         uint8_t     OCTAVE     : 3;

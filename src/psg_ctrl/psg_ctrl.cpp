@@ -31,7 +31,7 @@ namespace
     void init_pitchbend(SLOT &slot, uint8_t ch);
     void proc_pitchbend(SLOT &slot, uint8_t ch);
     const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out, int16_t start_note_num);
-    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint16_t proc_freq);
+    uint32_t get_note_on_time(uint8_t note_len, uint16_t tempo, uint8_t dot_cnt, uint16_t proc_freq);
     void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint16_t proc_freq);
     void decode_atsign(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
     void generate_tone(SLOT &slot, uint8_t ch, const char **pp_pos, const char *p_tail);
@@ -649,7 +649,7 @@ namespace
         return p_pos;
     }
     
-    uint32_t get_note_on_time(uint8_t note_len, uint8_t tempo, uint8_t dot_cnt, uint16_t proc_freq)
+    uint32_t get_note_on_time(uint8_t note_len, uint16_t tempo, uint8_t dot_cnt, uint16_t proc_freq)
     {
         uint32_t q12_time, q12_time_delta;
 
@@ -658,7 +658,7 @@ namespace
             return 0;
         }
 
-        q12_time_delta = (((uint32_t)proc_freq*4*60)<<12) / ((uint16_t)tempo*note_len);
+        q12_time_delta = (((uint32_t)proc_freq*4*60)<<12) / (tempo*(uint16_t)note_len);
         q12_time = q12_time_delta;
 
         while ( dot_cnt > 0 )
