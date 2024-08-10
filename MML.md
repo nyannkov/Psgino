@@ -338,7 +338,7 @@ Sets the target volume level for decay processing.
 
 | Values         | Description |
 |----------------|-------------|
-| &lt;sustain&gt; | Specifies the sustain volume level as a percentage, ranging from 0 to 100%. This percentage corresponds to the volume set by the V command. |
+| &lt;sustain&gt; | Specifies the sustain volume level as a percentage, ranging from 0 to 1500%. This percentage corresponds to the volume set by the V command. |
 
 #### $F &lt;fade&gt;
 

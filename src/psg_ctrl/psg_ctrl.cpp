@@ -397,7 +397,13 @@ namespace
     uint16_t get_sus_volume(SLOT &slot, uint8_t ch)
     {
         const CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
-        return ( (uint16_t)p_ch_info->sw_env.sustain * p_ch_info->tone.VOLUME+50 )/100;
+        uint16_t sus_volume;
+        sus_volume = ( p_ch_info->sw_env.sustain * ((uint16_t)p_ch_info->tone.VOLUME) + 50)/100;
+        if ( sus_volume > MAX_VOLUME_LEVEL )
+        {
+            sus_volume = MAX_VOLUME_LEVEL;
+        }
+        return sus_volume;
     }
 
     void trans_sw_env_state(SLOT &slot, uint8_t ch)
@@ -1442,7 +1448,7 @@ namespace
         uint16_t vol;
         uint16_t top;
         uint16_t sus;
-        uint16_t rate;
+        int32_t rate;
         CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
 
         vol = p_ch_info->sw_env.VOL_INT;
@@ -1458,7 +1464,7 @@ namespace
             rate = top/p_ch_info->sw_env.attack_tk;
             if ( rate != 0 )
             {
-                if ( (top - vol) <= rate )
+                if ( (int32_t)(top - vol) <= rate )
                 {
                     vol = top;
                 }
@@ -1478,10 +1484,21 @@ namespace
             break;
 
         case SW_ENV_STAT_DECAY:
-            rate = (top-sus)/p_ch_info->sw_env.decay_tk;
-            if ( rate != 0 )
+            rate = (int32_t)(top-sus)/p_ch_info->sw_env.decay_tk;
+            if ( rate > 0 )
             {
-                if ( (vol-sus) <= rate )
+                if ( (int32_t)(vol-sus) <= rate )
+                {
+                    vol = sus;
+                }
+                else
+                {
+                    vol -= rate;
+                }
+            }
+            else if ( rate < 0 )
+            {
+                if ( (int32_t)(vol-sus) >= rate )
                 {
                     vol = sus;
                 }
