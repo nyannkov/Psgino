@@ -116,9 +116,9 @@ namespace PsgCtrl
     const int16_t DEFAULT_SOFT_ENVELOPE_DECAY   = (0);
 
     /* unit: 1 pct. */
-    const int16_t MIN_SOFT_ENVELOPE_SUSTAIN     = (0);
-    const int16_t MAX_SOFT_ENVELOPE_SUSTAIN     = (100);
-    const int16_t DEFAULT_SOFT_ENVELOPE_SUSTAIN = (100);
+    const uint16_t MIN_SOFT_ENVELOPE_SUSTAIN     = (0);
+    const uint16_t MAX_SOFT_ENVELOPE_SUSTAIN     = (1500);
+    const uint16_t DEFAULT_SOFT_ENVELOPE_SUSTAIN = (100);
 
     /* unit: 1msec. */
     const int16_t MIN_SOFT_ENVELOPE_FADE        = (0);
@@ -269,7 +269,7 @@ namespace PsgCtrl
         uint16_t    fade_tk;
         uint16_t    VOL_INT   : 4;
         uint16_t    VOL_FRAC  :12;
-        uint8_t     sustain;
+        uint16_t    sustain;
     };
 
     struct PITCHBEND_INFO
