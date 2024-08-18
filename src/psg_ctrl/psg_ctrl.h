@@ -39,6 +39,9 @@ namespace PsgCtrl
     const int16_t SW_ENV_STAT_HOLD              = (2);
     const int16_t SW_ENV_STAT_DECAY             = (3);
     const int16_t SW_ENV_STAT_FADE              = (4);
+    const int16_t SW_ENV_STAT_INIT_NOTE_OFF     = (5);
+    const int16_t SW_ENV_STAT_RELEASE           = (6);
+    const int16_t SW_ENV_STAT_END               = (7);
 
     const int16_t LFO_STAT_STOP                 = (0);
     const int16_t LFO_STAT_RUN                  = (1);
@@ -267,8 +270,11 @@ namespace PsgCtrl
         uint16_t    hold_tk;
         uint16_t    decay_tk;
         uint16_t    fade_tk;
+        uint16_t    release_tk;
         uint16_t    VOL_INT   : 4;
         uint16_t    VOL_FRAC  :12;
+        uint16_t    REL_VOL_INT   : 4;
+        uint16_t    REL_VOL_FRAC  :12;
         uint16_t    sustain;
     };
 
