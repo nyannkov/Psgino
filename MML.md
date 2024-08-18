@@ -32,6 +32,7 @@ This document describes MML commands for Psgino.
 | [$D](#d-decay) | Sets the decay time of the software envelope. |
 | [$S](#s-sustain) | Sets the sustain time of the software envelope. |
 | [$F](#f-fade) | Sets the fade time of the software envelope. |
+| [$R](#r-release) | Sets the release time of the software envelope. |
 | [$M](#m-mode) | Sets the software LFO mode. |
 | [$J](#j-depth) | Sets the modulation depth of the software LFO. |
 | [$L](#l-low-frequency) | Sets the modulation frequency of the software LFO. |
@@ -286,7 +287,7 @@ O3[3 C&>C0]
 
 ## Software envelope generator
 
-In addition to PSG's built-in envelope generator, Psgino supports volume control using software envelopes. This feature is only available when volume is controlled with the V command instead of the S command. The envelope shape is configured using 5 parameters (the AHDSFR method without the "R"). Volume control via envelopes can be set independently for each channel.
+In addition to PSG's built-in envelope generator, Psgino supports volume control using software envelopes. This feature is only available when volume is controlled with the V command rather than the S command. The envelope shape is configured using six parameters (the AHDSFR method). Volume control via envelopes can be set independently for each channel.
 
 #### $E &lt;enabled&gt;
 
@@ -299,13 +300,13 @@ Sets the ON/OFF state for volume control via software envelope. This value defau
 **Example:**
 ```
 V15L4O4
-$A0$H100$D100$S90$F2000
+$A0$H100$D100$S90$F2000$R300
 
 $E0
-CDE2
+CDER
 
 $E1
-CDE2
+CDER
 ```
 
 #### $A &lt;attack&gt;
@@ -347,6 +348,14 @@ Specifies the time it takes for the volume to fade from the sustain level to 0 a
 | Values        | Description |
 |---------------|-------------|
 | &lt;fade&gt; | Specifies the fade time in milliseconds, ranging from 0 to 10000. If 0 is specified, the volume will remain at the sustain level. |
+
+#### $R &lt;release&gt;
+
+Specifies the time it takes for the volume to decrease from the level at note-off to 0. This effect is only applied when the command following the note-off is a rest.
+
+| Values        | Description |
+|---------------|-------------|
+| &lt;release&gt; | Specifies the release time in milliseconds, ranging from 0 to 10000. If 0 is specified, the volume is immediately set to the 0. |
 
 ## Software LFO
 

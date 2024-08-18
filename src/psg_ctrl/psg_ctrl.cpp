@@ -458,6 +458,24 @@ namespace
             p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_FADE;
             break;
 
+
+        case SW_ENV_STAT_INIT_NOTE_OFF:
+            if ( p_ch_info->sw_env.release_tk != 0 )
+            {
+                p_ch_info->sw_env.REL_VOL_INT = p_ch_info->sw_env.VOL_INT;
+                p_ch_info->sw_env.REL_VOL_FRAC = p_ch_info->sw_env.VOL_FRAC;
+                p_ch_info->time.sw_env = p_ch_info->sw_env.release_tk;
+                p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_RELEASE;
+                break;
+            }
+            /*@fallthrough@*/
+
+        case SW_ENV_STAT_RELEASE:
+            p_ch_info->sw_env.VOL_INT = 0;
+            p_ch_info->sw_env.VOL_FRAC = 0;
+            p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_END;
+            break;
+
         default:
             /* NO CHANGE */
             break;
@@ -741,6 +759,17 @@ namespace
                 p_info->sw_env.hold_tk = ms2tk(param, proc_freq);
                 break;
 
+            case 'R':
+                param = get_param(
+                    pp_pos
+                  , p_tail
+                  , MIN_SOFT_ENVELOPE_RELEASE
+                  , MAX_SOFT_ENVELOPE_RELEASE
+                  , DEFAULT_SOFT_ENVELOPE_RELEASE
+                );
+                p_info->sw_env.release_tk = ms2tk(param, proc_freq);
+                break;
+
             case 'S':
                 param = get_param(
                     pp_pos
@@ -852,8 +881,6 @@ namespace
         int16_t note_num;
         int32_t legato_end_note_num;
         int32_t note_len;
-        uint16_t tp;
-        uint16_t tp_end;
         char head;
         uint8_t col_num;
         uint8_t dot_cnt;
@@ -1002,6 +1029,8 @@ namespace
 
         if ( note_type == E_NOTE_TYPE_TONE ) 
         {
+            uint16_t tp;
+            uint16_t tp_end;
             int16_t bias;
             bias = (int16_t)p_ch_info->tone.BIAS - BIAS_LEVEL_OFS;
             /* Apply bias-level to tp. */
@@ -1022,17 +1051,30 @@ namespace
             slot.psg_reg.data[2*ch]     = U16_LO(tp);
             slot.psg_reg.data[2*ch+1]   = U16_HI(tp);
             slot.psg_reg.flags_addr    |= 0x3<<(2*ch);
-        }
-        else
-        {
-            tp = 0;
-            tp_end = 0;
-        }
 
-        p_ch_info->pitchbend.TP_INT = tp;
-        p_ch_info->pitchbend.TP_FRAC =0;
-        p_ch_info->pitchbend.TP_END_L = tp_end&0xF;
-        p_ch_info->pitchbend.TP_END_H = (tp_end>>4)&0xFF;
+            p_ch_info->pitchbend.TP_INT = tp;
+            p_ch_info->pitchbend.TP_FRAC =0;
+            p_ch_info->pitchbend.TP_END_L = tp_end&0xF;
+            p_ch_info->pitchbend.TP_END_H = (tp_end>>4)&0xFF;
+
+            if ( p_ch_info->ch_status.LFO_MODE != LFO_MODE_OFF )
+            {
+                p_ch_info->ch_status.LFO_STAT = LFO_STAT_RUN;
+                if ( p_ch_info->ch_status.LEGATO == 0 )
+                {
+                    p_ch_info->time.lfo_delay = p_ch_info->lfo.delay_tk;
+                    p_ch_info->lfo.theta = 0;
+                    p_ch_info->lfo.DELTA_FRAC = 0;
+                    p_ch_info->lfo.TP_FRAC = 0;
+                    p_ch_info->lfo.BASE_TP_H = (tp>>8)&0xF;
+                    p_ch_info->lfo.BASE_TP_L = tp&0xFF;
+                }
+            }
+            else
+            {
+                p_ch_info->ch_status.LFO_STAT = LFO_STAT_STOP;
+            }
+        }
 
         if ( ( note_type == E_NOTE_TYPE_TONE ) 
           || ( note_type == E_NOTE_TYPE_NOISE ) )
@@ -1053,12 +1095,36 @@ namespace
             }
         }
 
+        if ( p_ch_info->ch_status.SW_ENV_MODE != SW_ENV_MODE_OFF )
+        {
+            if ( note_type == E_NOTE_TYPE_REST )
+            {
+                if ( p_ch_info->ch_status.SW_ENV_STAT < SW_ENV_STAT_INIT_NOTE_OFF )
+                {
+                    p_ch_info->time.sw_env = 0;
+                    p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_INIT_NOTE_OFF;
+                    trans_sw_env_state(slot, ch);
+                }
+            }
+            else
+            {
+                if ( ( p_ch_info->ch_status.LEGATO == 0 )
+                &&   ( note_len != 0 ) )
+                {
+                    p_ch_info->time.sw_env = 0;
+                    p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_INIT_NOTE_ON;
+                    trans_sw_env_state(slot, ch);
+                }
+            }
+        }
+
         /* Note-ON */
         if ( note_len != 0 )
         {
             uint32_t q12_note_on_time;
             uint32_t q12_gate_time;
             uint8_t req_mixer;
+            bool is_update_mixer;
 
             q12_note_on_time  = get_note_on_time(
                                         note_len
@@ -1073,42 +1139,45 @@ namespace
             q12_gate_time = (q12_note_on_time * ((uint32_t)p_ch_info->tone.GATE_TIME+1))/MAX_GATE_TIME;
             p_ch_info->time.gate = (q12_gate_time>>12)&0xFFFF;
 
-            req_mixer = ( note_type == E_NOTE_TYPE_TONE  ) ? (0x08)
-                      : ( note_type == E_NOTE_TYPE_NOISE ) ? (0x01)
-                      : (0x09);
-
-            slot.psg_reg.data[0x7] &= ~(0x9<<ch);
-            slot.psg_reg.data[0x7] |= req_mixer<<ch;
-            slot.psg_reg.flags_addr  |= 1<<0x7;
-            slot.psg_reg.flags_mixer |= 1<<ch;
-        }
-
-        if ( p_ch_info->ch_status.SW_ENV_MODE != SW_ENV_MODE_OFF )
-        {
-            if ( p_ch_info->ch_status.LEGATO == 0 )
+            is_update_mixer = false;
+            if ( note_type == E_NOTE_TYPE_TONE )
             {
-                p_ch_info->time.sw_env = 0;
-                p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_INIT_NOTE_ON;
-                trans_sw_env_state(slot, ch);
+                req_mixer = 0x08;
+                is_update_mixer = true;
             }
-        }
-
-        if ( p_ch_info->ch_status.LFO_MODE != LFO_MODE_OFF )
-        {
-            p_ch_info->ch_status.LFO_STAT = LFO_STAT_RUN;
-            if ( p_ch_info->ch_status.LEGATO == 0 )
+            else if ( note_type == E_NOTE_TYPE_NOISE )
             {
-                p_ch_info->time.lfo_delay = p_ch_info->lfo.delay_tk;
-                p_ch_info->lfo.theta = 0;
-                p_ch_info->lfo.DELTA_FRAC = 0;
-                p_ch_info->lfo.TP_FRAC = 0;
-                p_ch_info->lfo.BASE_TP_H = (tp>>8)&0xF;
-                p_ch_info->lfo.BASE_TP_L = tp&0xFF;
+                req_mixer = 0x01;
+                is_update_mixer = true;
             }
-        }
-        else
-        {
-            p_ch_info->ch_status.LFO_STAT = LFO_STAT_STOP;
+            else if ( note_type == E_NOTE_TYPE_REST )
+            {
+                req_mixer = 0x09;
+                if ( p_ch_info->ch_status.SW_ENV_MODE != SW_ENV_MODE_OFF )
+                {
+                    if ( p_ch_info->ch_status.SW_ENV_STAT != SW_ENV_STAT_RELEASE )
+                    {
+                        is_update_mixer = true;
+                    }
+                }
+                else
+                {
+                    is_update_mixer = true;
+                }
+            }
+            else
+            {
+                req_mixer = 0x09;
+                is_update_mixer = true;
+            }
+
+            if ( is_update_mixer )
+            {
+                slot.psg_reg.data[0x7] &= ~(0x9<<ch);
+                slot.psg_reg.data[0x7] |= req_mixer<<ch;
+                slot.psg_reg.flags_addr  |= 1<<0x7;
+                slot.psg_reg.flags_mixer |= 1<<ch;
+            }
         }
 
         init_pitchbend(slot, ch);
@@ -1445,7 +1514,7 @@ namespace
 
     void update_sw_env_volume(SLOT &slot, uint8_t ch)
     {
-        uint16_t vol;
+        uint16_t vol, rel_vol;
         uint16_t top;
         uint16_t sus;
         int32_t rate;
@@ -1453,6 +1522,8 @@ namespace
 
         vol = p_ch_info->sw_env.VOL_INT;
         vol = (vol << 12)|p_ch_info->sw_env.VOL_FRAC;
+        rel_vol = p_ch_info->sw_env.REL_VOL_INT;
+        rel_vol = (rel_vol << 12)|p_ch_info->sw_env.REL_VOL_FRAC;
         top = p_ch_info->tone.VOLUME;
         top = top<<12;
         sus = get_sus_volume(slot, ch);
@@ -1537,6 +1608,33 @@ namespace
             else
             {
                 vol = sus;
+            }
+            break;
+
+        case SW_ENV_STAT_RELEASE:
+            if ( p_ch_info->sw_env.release_tk != 0 )
+            {
+                rate = rel_vol/p_ch_info->sw_env.release_tk;
+            }
+            else
+            {
+                rate = 0;
+            }
+
+            if ( rate != 0 )
+            {
+                if ( vol <= rate )
+                {
+                    vol = 0;
+                }
+                else
+                {
+                    vol -= rate;
+                }
+            }
+            else
+            {
+                vol = 0;
             }
             break;
 
