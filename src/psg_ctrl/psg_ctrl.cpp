@@ -14,7 +14,7 @@ namespace
     uint16_t U16(uint8_t h, uint8_t l);
     uint8_t U16_HI(uint16_t x);
     uint8_t U16_LO(uint16_t x);
-    uint16_t ms2tk(uint32_t time_ms, uint16_t proc_freq);
+    uint16_t sw_env_time2tk(uint16_t env_time, uint16_t time_unit, uint16_t tempo, uint16_t proc_freq);
     int32_t sat(int32_t x, int32_t min, int32_t max);
     void skip_white_space(const char **pp_text);
     bool parse_mml_header(SLOT &slot, const char **pp_text);
@@ -81,13 +81,22 @@ namespace
         return (((x)>>0)&0xFF);
     }
 
-    uint16_t ms2tk(uint32_t time_ms, uint16_t proc_freq)
+    uint16_t sw_env_time2tk(uint16_t env_time, uint16_t time_unit, uint16_t tempo, uint16_t proc_freq)
     {
-        uint16_t time_tk;
-
-        time_tk = (time_ms*(uint32_t)proc_freq+500)/1000;
-        
-        return time_tk;
+        if ( time_unit == 0 )
+        {
+            /* env_time unit is msec */
+            return ((uint32_t)env_time*proc_freq+500)/1000;
+        }
+        else if ( tempo != 0 )
+        {
+            /* env_time unit is note-unit */
+            return ((uint32_t)env_time*proc_freq*4*60)/((uint32_t)tempo*time_unit);
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     int32_t sat(int32_t x, int32_t min, int32_t max)
@@ -712,7 +721,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_ATTACK
                   , DEFAULT_SOFT_ENVELOPE_ATTACK
                 );
-                p_info->sw_env.attack_tk = ms2tk(param, proc_freq);
+                p_info->sw_env.attack_tk = sw_env_time2tk(param, p_info->sw_env.time_unit, p_info->tone.tempo, proc_freq);
                 break;
 
             case 'D':
@@ -723,7 +732,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_DECAY
                   , DEFAULT_SOFT_ENVELOPE_DECAY
                 );
-                p_info->sw_env.decay_tk = ms2tk(param, proc_freq);
+                p_info->sw_env.decay_tk = sw_env_time2tk(param, p_info->sw_env.time_unit, p_info->tone.tempo, proc_freq);
                 break;
 
             case 'E':
@@ -745,7 +754,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_FADE
                   , DEFAULT_SOFT_ENVELOPE_FADE
                 );
-                p_info->sw_env.fade_tk = ms2tk(param, proc_freq);
+                p_info->sw_env.fade_tk = sw_env_time2tk(param, p_info->sw_env.time_unit, p_info->tone.tempo, proc_freq);
                 break;
 
             case 'H':
@@ -756,7 +765,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_HOLD
                   , DEFAULT_SOFT_ENVELOPE_HOLD
                 );
-                p_info->sw_env.hold_tk = ms2tk(param, proc_freq);
+                p_info->sw_env.hold_tk = sw_env_time2tk(param, p_info->sw_env.time_unit, p_info->tone.tempo, proc_freq);
                 break;
 
             case 'R':
@@ -767,7 +776,7 @@ namespace
                   , MAX_SOFT_ENVELOPE_RELEASE
                   , DEFAULT_SOFT_ENVELOPE_RELEASE
                 );
-                p_info->sw_env.release_tk = ms2tk(param, proc_freq);
+                p_info->sw_env.release_tk = sw_env_time2tk(param, p_info->sw_env.time_unit, p_info->tone.tempo, proc_freq);
                 break;
 
             case 'S':
@@ -779,6 +788,17 @@ namespace
                   , DEFAULT_SOFT_ENVELOPE_SUSTAIN
                 );
                 p_info->sw_env.sustain = param;
+                break;
+
+            case 'U':
+                param = get_param(
+                    pp_pos
+                  , p_tail
+                  , MIN_SW_ENV_TIME_UNIT
+                  , MAX_SW_ENV_TIME_UNIT
+                  , DEFAULT_SW_ENV_TIME_UNIT
+                );
+                p_info->sw_env.time_unit = param;
                 break;
 
             case 'M':
