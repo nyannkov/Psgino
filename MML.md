@@ -27,6 +27,7 @@ This document describes MML commands for Psgino.
 | [&](#-octave-settings) | Plays notes with slurs and ties. |
 | [[],\|](#-loop-number----) | Specifies a loop section. |
 | [$E](#e-enabled) | Toggles software envelope volume control on/off. |
+| [$U](#u-time-unit) | Sets the time unit for the parameters specified by $A, $H, $D, $F, and $R. |
 | [$A](#a-attack) | Sets the attack time of the software envelope. |
 | [$H](#h-hold) | Sets the hold time of the software envelope. |
 | [$D](#d-decay) | Sets the decay time of the software envelope. |
@@ -300,7 +301,7 @@ Sets the ON/OFF state for volume control via software envelope. This value defau
 **Example:**
 ```
 V15L4O4
-$A0$H100$D100$S90$F2000$R300
+$U0$A0$H100$D100$S90$F2000$R300
 
 $E0
 CDER
@@ -309,13 +310,37 @@ $E1
 CDER
 ```
 
+#### $U &lt;time-unit&gt;
+
+Sets the time unit for the parameters specified by $A, $H, $D, $F, and $R.
+
+| Values          | Description |
+|-----------------|-------------|
+| &lt;time-unit&gt; | Specifies the time unit, ranging from 0 to 8192. The default value is 0. <br>
+• `0`: The values specified in $A, $H, $D, $F, and $R are interpreted as milliseconds. <br>
+• `1-8192`: The time unit is set to note-length. For example, if $U4 is specified, the values correspond to the length of a quarter note. |
+
+*Note: To scale the envelope shape proportionally with tempo changes, specify the time unit in note-length.*
+
+**Example:**
+
+```
+V15L4O4
+$E1
+T120 $U0    $A0$H100$D100$S90$F2000$R300 CDER
+T360 $U0    $A0$H100$D100$S90$F2000$R300 CDER
+
+T120 $U2048 $A0$H100$D100$S90$F2000$R300 CDER
+T360 $U2048 $A0$H100$D100$S90$F2000$R300 CDER
+```
+
 #### $A &lt;attack&gt;
 
 Specifies the rise time of the sound, which is the time it takes for the volume to increase from 0 to the level set by the V command.
 
 | Values           | Description |
 |------------------|-------------|
-| &lt;attack&gt; | Specifies the rise time in milliseconds, ranging from 0 to 10000. If 0 is specified, no rise time processing is applied, and the sound is output directly at the volume set by the V command. |
+| &lt;attack&gt; | Specifies the rise time, ranging from 0 to 10000. If 0 is specified, no rise time processing is applied, and the sound is output directly at the volume set by the V command. |
 
 #### $H &lt;hold&gt;
 
@@ -323,7 +348,7 @@ Sets the retention time of the volume level after the attack phase.
 
 | Values        | Description |
 |---------------|-------------|
-| &lt;hold&gt; | Specifies the hold time in milliseconds, ranging from 0 to 10000. If 0 is specified, decay processing will start immediately. |
+| &lt;hold&gt; | Specifies the hold time, ranging from 0 to 10000. If 0 is specified, decay processing will start immediately. |
 
 #### $D &lt;decay&gt;
 
@@ -331,7 +356,7 @@ Sets the time it takes for the volume to reach the sustain level after the hold 
 
 | Values        | Description |
 |---------------|-------------|
-| &lt;decay&gt; | Specifies the decay time in milliseconds, ranging from 0 to 10000. If 0 is specified, the volume is immediately set to the sustain value, and fade processing begins. |
+| &lt;decay&gt; | Specifies the decay time, ranging from 0 to 10000. If 0 is specified, the volume is immediately set to the sustain value, and fade processing begins. |
 
 #### $S &lt;sustain&gt;
 
@@ -347,7 +372,7 @@ Specifies the time it takes for the volume to fade from the sustain level to 0 a
 
 | Values        | Description |
 |---------------|-------------|
-| &lt;fade&gt; | Specifies the fade time in milliseconds, ranging from 0 to 10000. If 0 is specified, the volume will remain at the sustain level. |
+| &lt;fade&gt; | Specifies the fade time, ranging from 0 to 10000. If 0 is specified, the volume will remain at the sustain level. |
 
 #### $R &lt;release&gt;
 
@@ -355,7 +380,7 @@ Specifies the time it takes for the volume to decrease from the level at note-of
 
 | Values        | Description |
 |---------------|-------------|
-| &lt;release&gt; | Specifies the release time in milliseconds, ranging from 0 to 10000. If 0 is specified, the volume is immediately set to the 0. |
+| &lt;release&gt; | Specifies the release time, ranging from 0 to 10000. If 0 is specified, the volume is immediately set to the 0. |
 
 ## Software LFO
 

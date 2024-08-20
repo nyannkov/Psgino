@@ -103,32 +103,30 @@ namespace PsgCtrl
     const int16_t MAX_SW_ENV_MODE               = SW_ENV_MODE_ON;
     const int16_t DEFAULT_SW_ENV_MODE           = SW_ENV_MODE_OFF;
 
-    /* unit: 1msec. */
+    const uint16_t MIN_SW_ENV_TIME_UNIT         = (0);
+    const uint16_t MAX_SW_ENV_TIME_UNIT         = (8192);
+    const uint16_t DEFAULT_SW_ENV_TIME_UNIT     = (0);
+
     const int16_t MIN_SOFT_ENVELOPE_ATTACK      = (0);
     const int16_t MAX_SOFT_ENVELOPE_ATTACK      = (10000);
     const int16_t DEFAULT_SOFT_ENVELOPE_ATTACK  = (0);
 
-    /* unit: 1msec. */
     const int16_t MIN_SOFT_ENVELOPE_HOLD        = (0);
     const int16_t MAX_SOFT_ENVELOPE_HOLD        = (10000);
     const int16_t DEFAULT_SOFT_ENVELOPE_HOLD    = (0);
 
-    /* unit: 1msec. */
     const int16_t MIN_SOFT_ENVELOPE_DECAY       = (0);
     const int16_t MAX_SOFT_ENVELOPE_DECAY       = (10000);
     const int16_t DEFAULT_SOFT_ENVELOPE_DECAY   = (0);
 
-    /* unit: 1 pct. */
     const uint16_t MIN_SOFT_ENVELOPE_SUSTAIN     = (0);
     const uint16_t MAX_SOFT_ENVELOPE_SUSTAIN     = (1500);
     const uint16_t DEFAULT_SOFT_ENVELOPE_SUSTAIN = (100);
 
-    /* unit: 1msec. */
     const int16_t MIN_SOFT_ENVELOPE_FADE        = (0);
     const int16_t MAX_SOFT_ENVELOPE_FADE        = (10000);
     const int16_t DEFAULT_SOFT_ENVELOPE_FADE    = (0);
 
-    /* unit: 1msec. */
     const int16_t MIN_SOFT_ENVELOPE_RELEASE     = (0);
     const int16_t MAX_SOFT_ENVELOPE_RELEASE     = (10000);
     const int16_t DEFAULT_SOFT_ENVELOPE_RELEASE = (0);
@@ -276,6 +274,7 @@ namespace PsgCtrl
         uint16_t    REL_VOL_INT   : 4;
         uint16_t    REL_VOL_FRAC  :12;
         uint16_t    sustain;
+        uint16_t    time_unit;
     };
 
     struct PITCHBEND_INFO
