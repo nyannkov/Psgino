@@ -316,9 +316,7 @@ Sets the time unit for the parameters specified by $A, $H, $D, $F, and $R.
 
 | Values          | Description |
 |-----------------|-------------|
-| &lt;time-unit&gt; | Specifies the time unit, ranging from 0 to 8192. The default value is 0. <br>
-• `0`: The values specified in $A, $H, $D, $F, and $R are interpreted as milliseconds. <br>
-• `1-8192`: The time unit is set to note-length. For example, if $U4 is specified, the values correspond to the length of a quarter note. |
+| &lt;time-unit&gt; | Specifies the time unit, ranging from 0 to 8192. The default value is 0. <br>• `0`: The values specified in $A, $H, $D, $F, and $R are interpreted as milliseconds. <br>• `1-8192`: The time unit is set to note-length. For example, if $U4 is specified, the values correspond to the length of a quarter note. |
 
 *Note: To scale the envelope shape proportionally with tempo changes, specify the time unit in note-length.*
 
