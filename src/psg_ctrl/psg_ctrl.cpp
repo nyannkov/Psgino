@@ -1768,7 +1768,6 @@ namespace
             }
 
             p_ch_info->lfo.theta = theta;
-            p_ch_info->lfo.DELTA_FRAC = q6_delta&0x3F;
 
             slot.psg_reg.data[2*ch+0] = U16_LO(tp_next);
             slot.psg_reg.data[2*ch+1] = U16_HI(tp_next);
@@ -1777,6 +1776,7 @@ namespace
                 slot.psg_reg.flags_addr  |= 0x3<<(2*ch);
             }
         }
+        p_ch_info->lfo.DELTA_FRAC = q6_delta&0x3F;
     }
 
     void reset_ch_info(CHANNEL_INFO *p_ch_info)
