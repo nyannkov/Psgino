@@ -36,6 +36,7 @@ This document describes MML commands for Psgino.
 | [$R](#r-release) | Sets the release time of the software envelope. |
 | [$M](#m-mode) | Sets the software LFO mode. |
 | [$J](#j-depth) | Sets the modulation depth of the software LFO. |
+| [$V](#v-speed-unit) | Sets the speed unit for the parameter specified by $L. |
 | [$L](#l-low-frequency) | Sets the modulation frequency of the software LFO. |
 | [$T](#t-delay-dot) | Specifies the delay time before the software LFO starts operating after sound output begins. |
 | [$B](#b-bias) | Biases the frequency of the output sound. |
@@ -396,7 +397,7 @@ Sets the ON/OFF state for the software LFO. The default value is OFF.
 **Example:**
 ```
 V15L4O4
-$J4$L80$T8
+$V0$J4$L80$T8
 
 $M0
 CDE2
@@ -413,13 +414,25 @@ Sets the modulation depth. The default modulation depth is 0.
 |----------------|-------------|
 | &lt;depth&gt; | Specifies the modulation depth, ranging from 0 to 255. If the modulation depth is n, the frequency of the sound varies from 2^(-n/360) times to 2^(n/360) times, depending on the modulation function. |
 
+#### $V &lt;speed-unit&gt;
+
+Sets the speed unit for the parameter specified by $L.
+
+| Values          | Description |
+|-----------------|-------------|
+| &lt;speed-unit&gt; | Specifies the speed unit, ranging from 0 to 8192. The default value is 0. <br>• `0`: The values specified in $L is interpreted as 0.1 Hz. <br>• `1-8192`: The time unit is the reciprocal of the value obtained by multiplying the note-length by 10. For example, if $V4 is specified and $L10 is used, modulation will occur 1.0 times within the duration of a quarter note. Similarly, if $V8 is specified and $L25 is used, modulation will occur 2.5 times within the duration of an eighth note.|
+
+**NOTE:**
+To scale the LFO frequency proportionally with tempo changes, specify the time unit in note-length.
+
+
 #### $L &lt;low-frequency&gt;
 
-Sets the modulation frequency. The default modulation frequency is 40 (which equals 4.0 Hz).
+Sets the modulation frequency. The default modulation frequency is 40.
 
 | Values            | Description |
 |-------------------|-------------|
-| &lt;low-frequency&gt; | Specifies the modulation frequency, ranging from 0 to 200. The unit is 0.1 Hz. |
+| &lt;low-frequency&gt; | Specifies the modulation frequency, ranging from 0 to 200|
 
 #### $T &lt;delay&gt; [&lt;dot&gt;]
 

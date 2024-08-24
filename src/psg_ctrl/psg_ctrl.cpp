@@ -15,6 +15,7 @@ namespace
     uint8_t U16_HI(uint16_t x);
     uint8_t U16_LO(uint16_t x);
     uint16_t sw_env_time2tk(uint16_t env_time, uint16_t time_unit, uint16_t tempo, uint16_t proc_freq);
+    uint16_t get_lfo_speed(uint16_t freq_value, uint16_t speed_unit, uint16_t tempo);
     int32_t sat(int32_t x, int32_t min, int32_t max);
     void skip_white_space(const char **pp_text);
     bool parse_mml_header(SLOT &slot, const char **pp_text);
@@ -96,6 +97,18 @@ namespace
         else
         {
             return 0;
+        }
+    }
+
+    uint16_t get_lfo_speed(uint16_t freq_value, uint16_t speed_unit, uint16_t tempo)
+    {
+        if ( speed_unit == 0 )
+        {
+            return freq_value;
+        }
+        else
+        {
+            return (freq_value * tempo * 4) / (60 * speed_unit);
         }
     }
 
@@ -801,6 +814,17 @@ namespace
                 p_info->sw_env.time_unit = param;
                 break;
 
+            case 'V':
+                param = get_param(
+                    pp_pos
+                  , p_tail
+                  , MIN_LFO_SPEED_UNIT
+                  , MAX_LFO_SPEED_UNIT
+                  , DEFAULT_LFO_SPEED_UNIT
+                );
+                p_info->lfo.speed_unit = param;
+                break;
+
             case 'M':
                 param = get_param(
                     pp_pos
@@ -842,7 +866,12 @@ namespace
                   , MAX_LFO_SPEED
                   , DEFAULT_LFO_SPEED
                 );
-                p_info->lfo.speed = param;
+
+                p_info->lfo.speed = get_lfo_speed(
+                    param
+                  , p_info->lfo.speed_unit
+                  , p_info->tone.tempo
+                );
                 break;
 
             case 'J':
