@@ -397,7 +397,7 @@ Sets the ON/OFF state for the software LFO. The default value is OFF.
 **Example:**
 ```
 V15L4O4
-$J4$L80$T8
+$V0$J4$L80$T8
 
 $M0
 CDE2
@@ -423,7 +423,7 @@ Sets the speed unit for the parameter specified by $L.
 | &lt;speed-unit&gt; | Specifies the speed unit, ranging from 0 to 8192. The default value is 0. <br>• `0`: The values specified in $L is interpreted as 0.1 Hz. <br>• `1-8192`: The time unit is the reciprocal of the value obtained by multiplying the note-length by 10. For example, if $V4 is specified and $L10 is used, modulation will occur 1.0 times within the duration of a quarter note. Similarly, if $V8 is specified and $L25 is used, modulation will occur 2.5 times within the duration of an eighth note.|
 
 **NOTE:**
-To scale the envelope shape proportionally with tempo changes, specify the time unit in note-length.
+To scale the LFO frequency proportionally with tempo changes, specify the time unit in note-length.
 
 
 #### $L &lt;low-frequency&gt;
