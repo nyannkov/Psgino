@@ -136,7 +136,10 @@ namespace PsgCtrl
     const int16_t DEFAULT_BIAS_LEVEL            = (0);
     const int16_t BIAS_LEVEL_OFS                = (500);
 
-    /* unit: 0.1 Hz */
+    const uint16_t MIN_LFO_SPEED_UNIT           = (0);
+    const uint16_t MAX_LFO_SPEED_UNIT           = (8192);
+    const uint16_t DEFAULT_LFO_SPEED_UNIT       = (0);
+
     const int16_t MIN_LFO_SPEED                 = (0);
     const int16_t MAX_LFO_SPEED                 = (200);
     const int16_t DEFAULT_LFO_SPEED             = (40);
@@ -260,6 +263,7 @@ namespace PsgCtrl
         uint16_t    DELTA_FRAC : 6;
         uint16_t    TP_FRAC    : 6;
         uint16_t    BASE_TP_H  : 4;
+        uint16_t    speed_unit;
     };
 
     struct SW_ENV_INFO
