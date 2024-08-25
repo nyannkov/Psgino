@@ -140,7 +140,7 @@ namespace PsgCtrl
     const uint16_t MAX_LFO_SPEED_UNIT           = (8192);
     const uint16_t DEFAULT_LFO_SPEED_UNIT       = (0);
 
-    const int16_t MIN_LFO_SPEED                 = (0);
+    const int16_t MIN_LFO_SPEED                 = (-200);
     const int16_t MAX_LFO_SPEED                 = (200);
     const int16_t DEFAULT_LFO_SPEED             = (40);
 
@@ -255,7 +255,7 @@ namespace PsgCtrl
 
     struct LFO_INFO
     {
-        uint8_t     speed;
+        int16_t     speed;
         uint8_t     depth;
         uint8_t     BASE_TP_L  : 8;
         uint16_t    delay_tk;

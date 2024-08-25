@@ -432,7 +432,7 @@ Sets the modulation frequency. The default modulation frequency is 40.
 
 | Values            | Description |
 |-------------------|-------------|
-| &lt;low-frequency&gt; | Specifies the modulation frequency, ranging from 0 to 200|
+| &lt;low-frequency&gt; | Specifies the modulation frequency, ranging from -200 to 200. If a value of 0 or greater is specified, the phase of the modulation waveform will be 180 deg. If the value is less than 0, the phase will be 0 deg.|
 
 #### $T &lt;delay&gt; [&lt;dot&gt;]
 
