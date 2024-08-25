@@ -15,7 +15,7 @@ namespace
     uint8_t U16_HI(uint16_t x);
     uint8_t U16_LO(uint16_t x);
     uint16_t sw_env_time2tk(uint16_t env_time, uint16_t time_unit, uint16_t tempo, uint16_t proc_freq);
-    uint16_t get_lfo_speed(uint16_t freq_value, uint16_t speed_unit, uint16_t tempo);
+    int16_t get_lfo_speed(int16_t freq_value, uint16_t speed_unit, uint16_t tempo);
     int32_t sat(int32_t x, int32_t min, int32_t max);
     void skip_white_space(const char **pp_text);
     bool parse_mml_header(SLOT &slot, const char **pp_text);
@@ -100,7 +100,7 @@ namespace
         }
     }
 
-    uint16_t get_lfo_speed(uint16_t freq_value, uint16_t speed_unit, uint16_t tempo)
+    int16_t get_lfo_speed(int16_t freq_value, uint16_t speed_unit, uint16_t tempo)
     {
         if ( speed_unit == 0 )
         {
@@ -108,7 +108,7 @@ namespace
         }
         else
         {
-            return (freq_value * tempo * 4) / (60 * speed_unit);
+            return (int16_t)(freq_value * tempo * speed_unit) / 240;
         }
     }
 
@@ -1722,6 +1722,8 @@ namespace
     {
         uint8_t tp_hi;
         uint8_t tp_lo;
+        uint16_t speed_abs;
+        bool is_phase_inverted;
         uint16_t delta_int;
         uint32_t tp_next;
         uint32_t q6_omega;
@@ -1743,8 +1745,20 @@ namespace
         tp_lo = slot.psg_reg.data[2*ch+0];
         tp_next = U16(tp_hi, tp_lo);
 
+        if ( p_ch_info->lfo.speed > 0 )
+        {
+            /* Inverted the phase when the speed is positive to maintain compatibility. */
+            is_phase_inverted = true;
+            speed_abs = p_ch_info->lfo.speed;
+        }
+        else
+        {
+            is_phase_inverted = false;
+            speed_abs = p_ch_info->lfo.speed * -1;
+        }
+
         q6_omega = 1<<6;
-        q6_omega *= (uint32_t)p_ch_info->lfo.depth*4*p_ch_info->lfo.speed;
+        q6_omega *= (uint32_t)p_ch_info->lfo.depth*4*speed_abs;
         q6_omega /= ((uint16_t)slot.gl_info.proc_freq*MAX_LFO_PERIOD);
 
         q6_delta = p_ch_info->lfo.DELTA_FRAC;
@@ -1766,7 +1780,7 @@ namespace
                 lq24_tp = lq24_tp << 18;
                 if ( (depth <= theta) && ( theta < (depth*3)))
                 {
-                    lq24_tp = (lq24_tp*Q_PITCHBEND_FACTOR_N)>>24;
+                    lq24_tp = (lq24_tp*(is_phase_inverted ? Q_PITCHBEND_FACTOR_N : Q_PITCHBEND_FACTOR))>>24;
                 }
                 else
                 {
@@ -1782,7 +1796,7 @@ namespace
                     }
                     else
                     {
-                        lq24_tp = (lq24_tp*Q_PITCHBEND_FACTOR)>>24;
+                        lq24_tp = (lq24_tp*(is_phase_inverted ? Q_PITCHBEND_FACTOR : Q_PITCHBEND_FACTOR_N))>>24;
                     }
                 }
 
