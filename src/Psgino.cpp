@@ -55,6 +55,11 @@ void Psgino::SetUserCallback(void (*cb)(uint8_t ch, int32_t params))
     PsgCtrl::set_user_callback(this->slot0, cb);
 }
 
+void Psgino::SetSpeedFactor(uint16_t speed_factor)
+{
+    PsgCtrl::set_speed_factor(this->slot0, speed_factor);
+}
+
 void Psgino::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())
 {
     this->p_write = write;
@@ -174,6 +179,11 @@ void PsginoZ::StopSe()
 void PsginoZ::SetSeUserCallback(void (*cb)(uint8_t ch, int32_t params))
 {
     PsgCtrl::set_user_callback(this->slot1, cb);
+}
+
+void PsginoZ::SetSeSpeedFactor(uint16_t speed_factor)
+{
+    PsgCtrl::set_speed_factor(this->slot1, speed_factor);
 }
 
 void PsginoZ::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())

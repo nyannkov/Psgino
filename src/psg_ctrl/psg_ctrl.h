@@ -91,6 +91,10 @@ namespace PsgCtrl
     const uint16_t MAX_TEMPO                    = (1000);
     const uint16_t DEFAULT_TEMPO                = (120);
 
+    const uint16_t MIN_SPEED_FACTOR             = (20);     // 20%
+    const uint16_t MAX_SPEED_FACTOR             = (500);    // 500%
+    const uint16_t DEFAULT_SPEED_FACTOR         = (100);    // 100%
+
     const int16_t MIN_NOTE_LENGTH               = (1);
     const int16_t MAX_NOTE_LENGTH               = (128);
     const int16_t DEFAULT_NOTE_LENGTH           = (4);
@@ -210,6 +214,7 @@ namespace PsgCtrl
         SYS_REQUEST sys_request;
         uint32_t    s_clock;
         uint16_t    proc_freq;
+        uint16_t    speed_factor;
         uint8_t     mml_version;
     };
 
@@ -330,6 +335,7 @@ namespace PsgCtrl
     void set_user_callback(SLOT &slot, void (*callback)(uint8_t ch, int32_t param));
     void control_psg(SLOT &slot);
     void reset(SLOT &slot);
+    void set_speed_factor(SLOT &slot, uint16_t speed_factor);
 }
 #pragma pack()
 
