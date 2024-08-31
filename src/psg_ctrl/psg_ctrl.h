@@ -95,6 +95,10 @@ namespace PsgCtrl
     const uint16_t MAX_SPEED_FACTOR             = (500);    // 500%
     const uint16_t DEFAULT_SPEED_FACTOR         = (100);    // 100%
 
+    const int16_t MIN_FREQ_SHIFT_DEGREES        = (-360*5);
+    const int16_t MAX_FREQ_SHIFT_DEGREES        = (360*5);
+    const int16_t DEFAULT_FREQ_SHIFT_DEGREES    = (0);
+
     const int16_t MIN_NOTE_LENGTH               = (1);
     const int16_t MAX_NOTE_LENGTH               = (128);
     const int16_t DEFAULT_NOTE_LENGTH           = (4);
@@ -215,6 +219,7 @@ namespace PsgCtrl
         uint32_t    s_clock;
         uint16_t    proc_freq;
         uint16_t    speed_factor;
+        int16_t     shift_degrees;
         uint8_t     mml_version;
     };
 
@@ -336,6 +341,7 @@ namespace PsgCtrl
     void control_psg(SLOT &slot);
     void reset(SLOT &slot);
     void set_speed_factor(SLOT &slot, uint16_t speed_factor);
+    void shift_frequency(SLOT &slot, int16_t shift_degrees);
 }
 #pragma pack()
 

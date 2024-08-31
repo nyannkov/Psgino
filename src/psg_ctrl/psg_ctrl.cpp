@@ -1088,12 +1088,18 @@ namespace
             /* Apply bias-level to tp. */
             tp = shift_tp(calc_tp(note_num, slot.gl_info.s_clock), bias);
 
+            /* Apply shift-degs to tp. */
+            tp = shift_tp(tp, slot.gl_info.shift_degrees);
+
             /* Apply the TP offset to the BIAS calculation result for fine adjustments, such as detuning. */
             tp = (uint16_t)sat(tp + (int16_t)p_ch_info->tone.tp_ofs, MIN_TP, MAX_TP);
 
             if ( is_start_legato_effect )
             {
                 tp_end = shift_tp(calc_tp(legato_end_note_num, slot.gl_info.s_clock), bias);
+
+                /* Apply shift-degs to tp_end. */
+                tp_end = shift_tp(tp_end, slot.gl_info.shift_degrees);
             }
             else
             {
@@ -2042,6 +2048,11 @@ namespace
 
         slot.gl_info.speed_factor = speed_factor;
     }
+
+    void shift_frequency(SLOT &slot, int16_t shift_degrees)
+    {
+        slot.gl_info.shift_degrees = sat(shift_degrees, MIN_FREQ_SHIFT_DEGREES, MAX_FREQ_SHIFT_DEGREES);
+   }
 
     void control_psg(SLOT &slot)
     {

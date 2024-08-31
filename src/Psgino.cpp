@@ -60,6 +60,11 @@ void Psgino::SetSpeedFactor(uint16_t speed_factor)
     PsgCtrl::set_speed_factor(this->slot0, speed_factor);
 }
 
+void Psgino::ShiftFrequency(int16_t shift_degrees)
+{
+    PsgCtrl::shift_frequency(this->slot0, shift_degrees);
+}
+
 void Psgino::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())
 {
     this->p_write = write;
@@ -184,6 +189,11 @@ void PsginoZ::SetSeUserCallback(void (*cb)(uint8_t ch, int32_t params))
 void PsginoZ::SetSeSpeedFactor(uint16_t speed_factor)
 {
     PsgCtrl::set_speed_factor(this->slot1, speed_factor);
+}
+
+void PsginoZ::ShiftSeFrequency(int16_t shift_degrees)
+{
+    PsgCtrl::shift_frequency(this->slot1, shift_degrees);
 }
 
 void PsginoZ::Initialize(void (*write)(uint8_t addr, uint8_t data), float fs_clock, uint16_t proc_freq, void (*reset)())
