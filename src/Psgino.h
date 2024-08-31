@@ -24,6 +24,7 @@ public:
     PlayStatus GetStatus();
     void SetUserCallback(void (*cb)(uint8_t ch, int32_t param));
     void FinishPrimaryLoop();
+    void SetSpeedFactor(uint16_t speed_factor);
     virtual void Initialize(void (*write)(uint8_t addr, uint8_t data)
          , float fs_clock
          , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
@@ -57,6 +58,7 @@ public:
     void StopSe();
     PlayStatus GetSeStatus();
     void SetSeUserCallback(void (*cb)(uint8_t ch, int32_t param));
+    void SetSeSpeedFactor(uint16_t speed_factor);
     void Initialize(void (*write)(uint8_t addr, uint8_t data)
          , float fs_clock
          , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ

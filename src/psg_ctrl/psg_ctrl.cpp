@@ -430,6 +430,7 @@ namespace
 
     void trans_sw_env_state(SLOT &slot, uint8_t ch)
     {
+        uint32_t q12_time_factor;
         CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
         if ( p_ch_info->time.sw_env != 0 )
         {
@@ -437,6 +438,7 @@ namespace
             return;
         }
 
+        q12_time_factor = (100 << 12) / slot.gl_info.speed_factor;
         switch ( p_ch_info->ch_status.SW_ENV_STAT )
         {
         case SW_ENV_STAT_INIT_NOTE_ON:
@@ -444,7 +446,7 @@ namespace
             {
                 p_ch_info->sw_env.VOL_INT = 0;
                 p_ch_info->sw_env.VOL_FRAC = 0;
-                p_ch_info->time.sw_env = p_ch_info->sw_env.attack_tk;
+                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.attack_tk * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_ATTACK;
                 break;
             }
@@ -455,7 +457,7 @@ namespace
             {
                 p_ch_info->sw_env.VOL_INT  = p_ch_info->tone.VOLUME;
                 p_ch_info->sw_env.VOL_FRAC = 0;
-                p_ch_info->time.sw_env = p_ch_info->sw_env.hold_tk;
+                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.hold_tk * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_HOLD;
                 break;
             }
@@ -466,7 +468,7 @@ namespace
             {
                 p_ch_info->sw_env.VOL_INT  = p_ch_info->tone.VOLUME;
                 p_ch_info->sw_env.VOL_FRAC = 0;
-                p_ch_info->time.sw_env = p_ch_info->sw_env.decay_tk;
+                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.decay_tk * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT= SW_ENV_STAT_DECAY;
                 break;
             }
@@ -476,7 +478,7 @@ namespace
 
             p_ch_info->sw_env.VOL_INT  = get_sus_volume(slot, ch);
             p_ch_info->sw_env.VOL_FRAC = 0;
-            p_ch_info->time.sw_env = p_ch_info->sw_env.fade_tk;
+            p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.fade_tk * q12_time_factor + (1<<11)) >> 12;
             p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_FADE;
             break;
 
@@ -486,7 +488,7 @@ namespace
             {
                 p_ch_info->sw_env.REL_VOL_INT = p_ch_info->sw_env.VOL_INT;
                 p_ch_info->sw_env.REL_VOL_FRAC = p_ch_info->sw_env.VOL_FRAC;
-                p_ch_info->time.sw_env = p_ch_info->sw_env.release_tk;
+                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.release_tk * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_RELEASE;
                 break;
             }
@@ -511,6 +513,7 @@ namespace
         uint32_t q6_tp_d;
         CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
 
+        // Multiplying by `speed_factor` is unnecessary here since it is already reflected in `note_on`.
         p_ch_info->time.pitchbend = p_ch_info->time.note_on;
         if ( p_ch_info->time.pitchbend == 0 )
         {
@@ -1111,7 +1114,9 @@ namespace
                 p_ch_info->ch_status.LFO_STAT = LFO_STAT_RUN;
                 if ( p_ch_info->ch_status.LEGATO == 0 )
                 {
-                    p_ch_info->time.lfo_delay = p_ch_info->lfo.delay_tk;
+                    uint32_t q12_time_factor;
+                    q12_time_factor = (100 << 12) / slot.gl_info.speed_factor;
+                    p_ch_info->time.lfo_delay = ((uint32_t)p_ch_info->lfo.delay_tk * q12_time_factor + (1<<11)) >> 12;
                     p_ch_info->lfo.theta = 0;
                     p_ch_info->lfo.DELTA_FRAC = 0;
                     p_ch_info->lfo.TP_FRAC = 0;
@@ -1177,7 +1182,7 @@ namespace
 
             q12_note_on_time  = get_note_on_time(
                                         note_len
-                                      , p_ch_info->tone.tempo
+                                      , ((uint32_t)p_ch_info->tone.tempo * slot.gl_info.speed_factor + 50)/ 100
                                       , dot_cnt
                                       , slot.gl_info.proc_freq
                                       );
@@ -1756,6 +1761,7 @@ namespace
             is_phase_inverted = false;
             speed_abs = p_ch_info->lfo.speed * -1;
         }
+        speed_abs = ((uint32_t)speed_abs * slot.gl_info.speed_factor + 50)/100;
 
         q6_omega = 1<<6;
         q6_omega *= (uint32_t)p_ch_info->lfo.depth*4*speed_abs;
@@ -1896,6 +1902,7 @@ namespace
         slot.gl_info.sys_status.REVERSE = reverse ? 1 : 0;
         slot.gl_info.sys_status.NUM_CH_IMPL = 0;
         slot.gl_info.proc_freq = (proc_freq != 0) ? proc_freq : PsgCtrl::DEFAULT_PROC_FREQ;
+        slot.gl_info.speed_factor = DEFAULT_SPEED_FACTOR;
 
         slot.cb_info.user_callback = nullptr;
 
@@ -1992,8 +1999,48 @@ namespace
         slot.gl_info.sys_status.CTRL_STAT_PRE = CTRL_STAT_STOP;
         slot.gl_info.sys_request.CTRL_REQ = CTRL_REQ_STOP;
         slot.gl_info.sys_request.CTRL_REQ_FLAG = 0;
+        slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
 
         reset_psg(slot.psg_reg);
+    }
+
+    void set_speed_factor(SLOT &slot, uint16_t speed_factor)
+    {
+        uint8_t i;
+        uint16_t pre_speed_factor;
+        uint32_t q12_alpha;
+
+        pre_speed_factor = slot.gl_info.speed_factor;
+
+        speed_factor = sat(speed_factor, MIN_SPEED_FACTOR, MAX_SPEED_FACTOR);
+
+        q12_alpha = ((uint32_t)pre_speed_factor << 12) / speed_factor;
+
+        for ( i = 0; i < NUM_CHANNEL; i++ )
+        {
+            CHANNEL_INFO *p_ch_info;
+            p_ch_info = slot.ch_info_list[i];
+
+            if ( p_ch_info != nullptr )
+            {
+                uint32_t q12_note_on_time;
+
+                q12_note_on_time = ((uint64_t)p_ch_info->time.note_on<<12);
+                q12_note_on_time += p_ch_info->time.NOTE_ON_FRAC;
+
+                q12_note_on_time = ((uint64_t)q12_note_on_time * q12_alpha + (1<<11))>>12;
+
+                p_ch_info->time.NOTE_ON_FRAC = q12_note_on_time&0xFFF;
+                p_ch_info->time.note_on = (q12_note_on_time>>12)&0xFFFF;
+
+                p_ch_info->time.gate = ((uint32_t)p_ch_info->time.gate * q12_alpha + (1<<11))>>12;
+                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->time.sw_env * q12_alpha + (1<<11))>>12;
+                p_ch_info->time.lfo_delay = ((uint32_t)p_ch_info->time.lfo_delay * q12_alpha + (1<<11))>>12;
+                p_ch_info->time.pitchbend = ((uint32_t)p_ch_info->time.pitchbend * q12_alpha + (1<<11))>>12;
+            }
+        }
+
+        slot.gl_info.speed_factor = speed_factor;
     }
 
     void control_psg(SLOT &slot)
