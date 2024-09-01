@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include "psg_ctrl.h"
 
-
 namespace PsgCtrl
 {
 namespace
@@ -31,6 +30,8 @@ namespace
     void trans_sw_env_state(SLOT &slot, uint8_t ch);
     void init_pitchbend(SLOT &slot, uint8_t ch);
     void proc_pitchbend(SLOT &slot, uint8_t ch);
+    void init_noise_sweep(SLOT &slot, uint8_t ch);
+    void proc_noise_sweep(SLOT &slot);
     const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out, int16_t start_note_num);
     uint32_t get_note_on_time(uint8_t note_len, uint16_t tempo, uint8_t dot_cnt, uint16_t proc_freq);
     void decode_dollar(CHANNEL_INFO *p_info, const char **pp_pos, const char *p_tail, uint16_t proc_freq);
@@ -251,7 +252,7 @@ namespace
         }
         lq24_tp += ((uint32_t)1)<<23;
         tp = (uint16_t)(lq24_tp>>24);
-        
+
         return ( (tp < MAX_TP) ? tp : MAX_TP );
     }
 
@@ -295,7 +296,7 @@ namespace
         {
             tp = MAX_TP;
         }
-        
+
         return (uint16_t)tp;
     }
 
@@ -410,7 +411,7 @@ namespace
         }
 
         n = sat(n, MIN_NOTE_NUMBER, MAX_NOTE_NUMBER);
-        
+
         *p_out = n;
 
         return p;
@@ -579,7 +580,6 @@ namespace
 
             }
         }
-        
         if ( ( p_ch_info->ch_status.PBEND_STAT == PBEND_STAT_STOP )
         ||   ( p_ch_info->ch_status.PBEND_STAT == PBEND_STAT_END  ) )
         {
@@ -629,6 +629,127 @@ namespace
 
         p_ch_info->pitchbend.TP_INT  = tp_int;
         p_ch_info->pitchbend.TP_FRAC = q6_tp&0x3F;
+    }
+
+    void init_noise_sweep(SLOT &slot, uint8_t ch)
+    {
+        uint16_t np_end;
+        uint16_t np_base;
+        uint16_t q6_np_d;
+        NOISE_INFO *p_noise_info = &slot.gl_info.noise_info;
+        const CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
+
+
+        p_noise_info->sweep_time = p_ch_info->time.note_on;
+        if ( p_noise_info->sweep_time == 0 )
+        {
+            p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_STOP;
+            return;
+        }
+
+        np_base = slot.psg_reg.data[0x6];
+        np_end = p_noise_info->NP_END;
+
+        if ( np_base < np_end )
+        {
+            p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_NP_UP;
+            q6_np_d = np_end - np_base;
+            q6_np_d <<= 6;
+            q6_np_d /= p_noise_info->sweep_time;
+        }
+        else if ( np_base > np_end )
+        {
+            p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_NP_DOWN;
+            q6_np_d = np_base - np_end;
+            q6_np_d <<= 6;
+            q6_np_d /= p_noise_info->sweep_time;
+        }
+        else
+        {
+            p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_STOP;
+            q6_np_d = 0;
+        }
+        p_noise_info->NP_INT = np_base & 0x1F;
+        p_noise_info->NP_FRAC = 0;
+        p_noise_info->NP_D_INT = (q6_np_d >> 6) & 0x1F;
+        p_noise_info->NP_D_FRAC = q6_np_d & 0x3F;
+    }
+
+    void proc_noise_sweep(SLOT &slot)
+    {
+        uint32_t q6_np;
+        uint32_t q6_np_d;
+        uint32_t q6_np_end;
+        uint8_t np_int;
+        NOISE_INFO *p_noise_info = &slot.gl_info.noise_info;
+
+        if ( p_noise_info->sweep_time > 0 )
+        {
+            p_noise_info->sweep_time--;
+        }
+        else
+        {
+            switch ( p_noise_info->SWEEP_STAT )
+            {
+            case NOISE_SWEEP_STAT_NP_UP:/*@fallthrough@*/
+            case NOISE_SWEEP_STAT_NP_DOWN:/*@fallthrough@*/
+            case NOISE_SWEEP_STAT_END:
+                p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_END;
+                break;
+
+            case NOISE_SWEEP_STAT_STOP:/*@fallthrough@*/
+            default:
+                p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_STOP;
+                break;
+            }
+        }
+
+        if ( ( p_noise_info->SWEEP_STAT == NOISE_SWEEP_STAT_STOP )
+        ||   ( p_noise_info->SWEEP_STAT == NOISE_SWEEP_STAT_END  ) )
+        {
+            return;
+        }
+
+        q6_np      = p_noise_info->NP_INT;
+        q6_np      = (q6_np<<6)|p_noise_info->NP_FRAC;
+        q6_np_d    = p_noise_info->NP_D_INT;
+        q6_np_d    = (q6_np_d<<6)|p_noise_info->NP_D_FRAC;
+        q6_np_end  = ((uint32_t)p_noise_info->NP_END << 6);
+
+        if ( p_noise_info->SWEEP_STAT == NOISE_SWEEP_STAT_NP_UP )
+        {
+            if ( (q6_np_end-q6_np) <= q6_np_d )
+            {
+                q6_np = q6_np_end;
+                p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_END;
+            }
+            else
+            {
+                q6_np += q6_np_d;
+            }
+        }
+        else if ( p_noise_info->SWEEP_STAT == NOISE_SWEEP_STAT_NP_DOWN )
+        {
+            if ( (q6_np-q6_np_end) <= q6_np_d )
+            {
+                q6_np = q6_np_end;
+                p_noise_info->SWEEP_STAT = NOISE_SWEEP_STAT_END;
+            }
+            else
+            {
+                q6_np -= q6_np_d;
+            }
+        }
+        else
+        {
+        }
+
+        np_int = (q6_np>>6)&0x1F;
+        slot.psg_reg.data[0x6] = np_int;
+        slot.psg_reg.flags_addr |= 1<<0x6;
+
+        p_noise_info->NP_INT  = np_int;
+        p_noise_info->NP_FRAC = q6_np&0x3F;
     }
 
     const char * get_legato_end_note_num(const char *p_pos, const char *p_tail, int32_t default_octave, int32_t *p_out, int16_t start_note_num)
@@ -697,7 +818,7 @@ namespace
 
         return p_pos;
     }
-    
+
     uint32_t get_note_on_time(uint8_t note_len, uint16_t tempo, uint8_t dot_cnt, uint16_t proc_freq)
     {
         uint32_t q12_time, q12_time_delta;
@@ -999,7 +1120,7 @@ namespace
                 p_pos = get_legato_end_note_num( p_pos+1
                                                , p_tail
                                                , (int32_t)p_ch_info->tone.OCTAVE+1
-                                               , &legato_end_note_num 
+                                               , &legato_end_note_num
                                                , note_num);
             }
             else
@@ -1028,47 +1149,104 @@ namespace
             note_len = p_ch_info->tone.note_len;
             dot_cnt += p_ch_info->tone.LEN_DOTS;
         }
-        else if ( (head == 'H') || (head == 'R') )
+        else if ( (head == 'J') || (head == 'H') || (head == 'R') )
         {
             /* Set Note-Type */
-            note_type = ( head == 'R' ) 
-                      ? E_NOTE_TYPE_REST 
+            note_type = ( head == 'R' )
+                      ? E_NOTE_TYPE_REST
                       : E_NOTE_TYPE_NOISE;
 
-            /* Get Note-Length */
-            if ( slot.gl_info.sys_status.RH_LEN != 0 )
+            if ( head == 'J' )
             {
-                is_note_len_omitted = false;
-                p_pos = read_number_ex( p_pos+1
-                                   , p_tail
-                                   , MIN_NOTE_LENGTH
-                                   , MAX_NOTE_LENGTH
-                                   , p_ch_info->tone.note_len 
-                                   , &note_len
-                                   , &is_note_len_omitted
-                                   );
+                int32_t np_base;
+                int32_t np_end;
+                np_base = slot.gl_info.noise_info.NP_I;
 
-                is_use_global_note_len = is_note_len_omitted;
+                np_end = np_base;
+
+                /* Set Note-Type */
+                note_type = E_NOTE_TYPE_NOISE;
+
+                /* Get NP */
+                p_pos = read_number( p_pos+1
+                                   , p_tail
+                                   , MIN_NOISE_NP
+                                   , MAX_NOISE_NP
+                                   , np_base
+                                   , &np_base
+                                   );
+                /* Sweep */
+                if ( *p_pos == '~' )
+                {
+                    p_pos = read_number( p_pos+1
+                                       , p_tail
+                                       , MIN_NOISE_NP
+                                       , MAX_NOISE_NP
+                                       , np_base
+                                       , &np_end
+                                       );
+                }
+                else
+                {
+                    np_end = np_base;
+                }
+                slot.psg_reg.data[0x6] = np_base&0x1F;
+                slot.psg_reg.flags_addr |= 1<<0x6;
+
+                slot.gl_info.noise_info.NP_END = np_end&0x1F;
+
+                /* Count Dot-Repetition */
+                dot_cnt = 0;
+                p_pos = count_dot(p_pos, p_tail, &dot_cnt);
+
+                is_use_global_note_len = true;
+                note_len = p_ch_info->tone.note_len;
+                dot_cnt += p_ch_info->tone.LEN_DOTS;
             }
             else
             {
-                is_use_global_note_len = false;
-                p_pos = read_number( p_pos+1
-                                   , p_tail
-                                   , MIN_NOTE_LENGTH
-                                   , MAX_NOTE_LENGTH
-                                   , DEFAULT_NOTE_LENGTH
-                                   , &note_len
-                                   );
-            }
+                if ( note_type == E_NOTE_TYPE_NOISE )
+                {
+                    slot.gl_info.noise_info.NP_END = slot.gl_info.noise_info.NP_I;
+                    slot.psg_reg.data[0x6] = slot.gl_info.noise_info.NP_I;
+                    slot.psg_reg.flags_addr |= 1<<0x6;
+                }
 
-            /* Count Dot-Repetition */
-            dot_cnt = 0;
-            p_pos = count_dot(p_pos, p_tail, &dot_cnt);
+                /* Get Note-Length */
+                if ( slot.gl_info.sys_status.RH_LEN != 0 )
+                {
+                    is_note_len_omitted = false;
+                    p_pos = read_number_ex( p_pos+1
+                                       , p_tail
+                                       , MIN_NOTE_LENGTH
+                                       , MAX_NOTE_LENGTH
+                                       , p_ch_info->tone.note_len
+                                       , &note_len
+                                       , &is_note_len_omitted
+                                       );
 
-            if ( is_use_global_note_len )
-            {
-                dot_cnt += p_ch_info->tone.LEN_DOTS;
+                    is_use_global_note_len = is_note_len_omitted;
+                }
+                else
+                {
+                    is_use_global_note_len = false;
+                    p_pos = read_number( p_pos+1
+                                       , p_tail
+                                       , MIN_NOTE_LENGTH
+                                       , MAX_NOTE_LENGTH
+                                       , DEFAULT_NOTE_LENGTH
+                                       , &note_len
+                                       );
+                }
+
+                /* Count Dot-Repetition */
+                dot_cnt = 0;
+                p_pos = count_dot(p_pos, p_tail, &dot_cnt);
+
+                if ( is_use_global_note_len )
+                {
+                    dot_cnt += p_ch_info->tone.LEN_DOTS;
+                }
             }
         }
         else
@@ -1079,7 +1257,7 @@ namespace
         /* Update current MML pos */
         *pp_pos = p_pos;
 
-        if ( note_type == E_NOTE_TYPE_TONE ) 
+        if ( note_type == E_NOTE_TYPE_TONE )
         {
             uint16_t tp;
             uint16_t tp_end;
@@ -1136,7 +1314,7 @@ namespace
             }
         }
 
-        if ( ( note_type == E_NOTE_TYPE_TONE ) 
+        if ( ( note_type == E_NOTE_TYPE_TONE )
           || ( note_type == E_NOTE_TYPE_NOISE ) )
         {
             slot.psg_reg.data[0x8+ch] = p_ch_info->tone.VOLUME;
@@ -1209,6 +1387,7 @@ namespace
             {
                 req_mixer = 0x01;
                 is_update_mixer = true;
+                init_noise_sweep(slot, ch);
             }
             else if ( note_type == E_NOTE_TYPE_REST )
             {
@@ -1281,6 +1460,7 @@ namespace
             case 'F':/*@fallthrough@*/
             case 'G':/*@fallthrough@*/
             case 'H':/*@fallthrough@*/
+            case 'J':/*@fallthrough@*/
             case 'N':/*@fallthrough@*/
             case 'R':
                 generate_tone(slot, ch, &p_pos, p_tail);
@@ -1379,7 +1559,7 @@ namespace
                     &p_pos
                   , p_tail
                   , MIN_GATE_TIME
-                  , MAX_GATE_TIME 
+                  , MAX_GATE_TIME
                   , DEFAULT_GATE_TIME
                 );
                 p_ch_info->tone.GATE_TIME = param-1;
@@ -1388,13 +1568,12 @@ namespace
             case 'I':
                 param = get_param(
                     &p_pos
-                  , p_tail 
+                  , p_tail
                   , MIN_NOISE_NP
                   , MAX_NOISE_NP
                   , DEFAULT_NOISE_NP
                 );
-                slot.psg_reg.data[0x6]   = param;
-                slot.psg_reg.flags_addr |= 1<<0x6;
+                slot.gl_info.noise_info.NP_I = param;
                 break;
 
             case '<':
@@ -1796,7 +1975,7 @@ namespace
                 }
                 else
                 {
-                    if ( ( theta == 0 ) 
+                    if ( ( theta == 0 )
                     &&   ( p_ch_info->ch_status.PBEND_STAT == PBEND_STAT_STOP ) )
                     {
                         uint16_t tp_base;
@@ -2007,6 +2186,9 @@ namespace
         slot.gl_info.sys_request.CTRL_REQ_FLAG = 0;
         slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
 
+        slot.gl_info.noise_info = (NOISE_INFO){};
+        slot.gl_info.noise_info.SWEEP_STAT = NOISE_SWEEP_STAT_STOP;
+
         reset_psg(slot.psg_reg);
     }
 
@@ -2137,7 +2319,6 @@ namespace
                 slot.gl_info.sys_status.FIN_PRI_LOOP_TRY = 0;
             }
         }
-
         for ( i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ )
         {
             ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
@@ -2170,7 +2351,7 @@ namespace
                     /* Mute tone and noise */
                     if ( ((slot.psg_reg.data[0x7]>>ch)&0x9) != 0x9 )
                     {
-                        slot.psg_reg.data[0x7]   |= (0x9<<ch);    
+                        slot.psg_reg.data[0x7]   |= (0x9<<ch);
                         slot.psg_reg.flags_addr  |= 1<<0x7;
                         slot.psg_reg.flags_mixer |= (1<<ch);
                     }
@@ -2191,6 +2372,9 @@ namespace
                 proc_lfo(slot, ch);
             }
         }
+
+        /* NOISE SWEEP BLOCK */
+        proc_noise_sweep(slot);
 
         if ( decode_end_cnt >= slot.gl_info.sys_status.NUM_CH_USED )
         {

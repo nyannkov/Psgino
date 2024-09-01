@@ -34,6 +34,11 @@ namespace PsgCtrl
     const int8_t MAX_TP_OFS                    = (100);
     const int8_t DEFAULT_TP_OFS                = (0);
 
+    const uint16_t NOISE_SWEEP_STAT_STOP        = (0);
+    const uint16_t NOISE_SWEEP_STAT_NP_UP       = (1);
+    const uint16_t NOISE_SWEEP_STAT_NP_DOWN     = (2);
+    const uint16_t NOISE_SWEEP_STAT_END         = (3);
+
     const int16_t SW_ENV_STAT_INIT_NOTE_ON      = (0);
     const int16_t SW_ENV_STAT_ATTACK            = (1);
     const int16_t SW_ENV_STAT_HOLD              = (2);
@@ -173,8 +178,8 @@ namespace PsgCtrl
     const int32_t Q_PITCHBEND_FACTOR            = (16809550);   /* POW(2, 1/360) << 24 */
     const int32_t Q_PITCHBEND_FACTOR_N          = (16744944);   /* POW(2,-1/360) << 24 */
 
-    const int32_t Q_CALCTP_FACTOR               = (17774841);   /* POW(2, 1/12)  << 24 */ 
-    const int32_t Q_CALCTP_FACTOR_N             = (15835583);   /* POW(2,-1/12)  << 24 */ 
+    const int32_t Q_CALCTP_FACTOR               = (17774841);   /* POW(2, 1/12)  << 24 */
+    const int32_t Q_CALCTP_FACTOR_N             = (15835583);   /* POW(2,-1/12)  << 24 */
 
     struct SYS_STATUS
     {
@@ -212,6 +217,20 @@ namespace PsgCtrl
         uint16_t                   : 1;
     };
 
+    struct NOISE_INFO
+    {
+        uint16_t    sweep_time;
+        uint16_t    NP_INT         : 5;
+        uint16_t    NP_FRAC        : 6;
+        uint16_t    NP_END         : 5;
+        uint16_t    NP_D_INT       : 5;
+        uint16_t    NP_D_FRAC      : 6;
+        uint16_t    SWEEP_STAT     : 2;
+        uint16_t                   : 3;
+        uint8_t     NP_I           : 5;
+        uint8_t                    : 3;
+    };
+
     struct GLOBAL_INFO
     {
         SYS_STATUS  sys_status;
@@ -221,6 +240,7 @@ namespace PsgCtrl
         uint16_t    speed_factor;
         int16_t     shift_degrees;
         uint8_t     mml_version;
+        NOISE_INFO  noise_info;
     };
 
     struct CALLBACK_INFO
@@ -249,13 +269,13 @@ namespace PsgCtrl
         uint16_t    HW_ENV     : 1;
         uint16_t    VOLUME     : 4;
         uint16_t    BIAS       :10;
-        uint16_t               : 1; 
+        uint16_t               : 1;
     };
 
     struct TIME_INFO
     {
         uint16_t    note_on;
-        uint16_t    gate; 
+        uint16_t    gate;
         uint16_t    sw_env;
         uint16_t    lfo_delay;
         uint16_t    pitchbend;
