@@ -12,174 +12,174 @@
 #pragma pack(1)
 namespace PsgCtrl
 {
-    const uint8_t DEFAULT_MML_VERSION           = (1);
-    const int16_t NUM_CHANNEL                   = (3);
+    constexpr uint8_t DEFAULT_MML_VERSION           = (1);
+    constexpr int16_t NUM_CHANNEL                   = (3);
 
-    const int16_t CTRL_STAT_STOP                = (0);
-    const int16_t CTRL_STAT_PLAY                = (1);
-    const int16_t CTRL_STAT_END                 = (2);
+    constexpr int16_t CTRL_STAT_STOP                = (0);
+    constexpr int16_t CTRL_STAT_PLAY                = (1);
+    constexpr int16_t CTRL_STAT_END                 = (2);
 
-    const int16_t CTRL_REQ_STOP                 = (0);
-    const int16_t CTRL_REQ_PLAY                 = (1);
+    constexpr int16_t CTRL_REQ_STOP                 = (0);
+    constexpr int16_t CTRL_REQ_PLAY                 = (1);
 
-    const int16_t PBEND_STAT_STOP               = (0);
-    const int16_t PBEND_STAT_TP_UP              = (1);
-    const int16_t PBEND_STAT_TP_DOWN            = (2);
-    const int16_t PBEND_STAT_END                = (3);
+    constexpr int16_t PBEND_STAT_STOP               = (0);
+    constexpr int16_t PBEND_STAT_TP_UP              = (1);
+    constexpr int16_t PBEND_STAT_TP_DOWN            = (2);
+    constexpr int16_t PBEND_STAT_END                = (3);
 
-    const uint16_t MIN_TP                       = (0);
-    const uint16_t MAX_TP                       = (4095);
+    constexpr uint16_t MIN_TP                       = (0);
+    constexpr uint16_t MAX_TP                       = (4095);
 
-    const int8_t MIN_TP_OFS                    = (100*-1);
-    const int8_t MAX_TP_OFS                    = (100);
-    const int8_t DEFAULT_TP_OFS                = (0);
+    constexpr int8_t MIN_TP_OFS                    = (100*-1);
+    constexpr int8_t MAX_TP_OFS                    = (100);
+    constexpr int8_t DEFAULT_TP_OFS                = (0);
 
-    const uint16_t NOISE_SWEEP_STAT_STOP        = (0);
-    const uint16_t NOISE_SWEEP_STAT_NP_UP       = (1);
-    const uint16_t NOISE_SWEEP_STAT_NP_DOWN     = (2);
-    const uint16_t NOISE_SWEEP_STAT_END         = (3);
+    constexpr uint16_t NOISE_SWEEP_STAT_STOP        = (0);
+    constexpr uint16_t NOISE_SWEEP_STAT_NP_UP       = (1);
+    constexpr uint16_t NOISE_SWEEP_STAT_NP_DOWN     = (2);
+    constexpr uint16_t NOISE_SWEEP_STAT_END         = (3);
 
-    const int16_t SW_ENV_STAT_INIT_NOTE_ON      = (0);
-    const int16_t SW_ENV_STAT_ATTACK            = (1);
-    const int16_t SW_ENV_STAT_HOLD              = (2);
-    const int16_t SW_ENV_STAT_DECAY             = (3);
-    const int16_t SW_ENV_STAT_FADE              = (4);
-    const int16_t SW_ENV_STAT_INIT_NOTE_OFF     = (5);
-    const int16_t SW_ENV_STAT_RELEASE           = (6);
-    const int16_t SW_ENV_STAT_END               = (7);
+    constexpr int16_t SW_ENV_STAT_INIT_NOTE_ON      = (0);
+    constexpr int16_t SW_ENV_STAT_ATTACK            = (1);
+    constexpr int16_t SW_ENV_STAT_HOLD              = (2);
+    constexpr int16_t SW_ENV_STAT_DECAY             = (3);
+    constexpr int16_t SW_ENV_STAT_FADE              = (4);
+    constexpr int16_t SW_ENV_STAT_INIT_NOTE_OFF     = (5);
+    constexpr int16_t SW_ENV_STAT_RELEASE           = (6);
+    constexpr int16_t SW_ENV_STAT_END               = (7);
 
-    const int16_t LFO_STAT_STOP                 = (0);
-    const int16_t LFO_STAT_RUN                  = (1);
+    constexpr int16_t LFO_STAT_STOP                 = (0);
+    constexpr int16_t LFO_STAT_RUN                  = (1);
 
-    const int16_t MAX_LFO_PERIOD                = (10);       /* unit: sec. */
-    const uint16_t DEFAULT_PROC_FREQ            = (100);      /* Hz */
+    constexpr int16_t MAX_LFO_PERIOD                = (10);       /* unit: sec. */
+    constexpr uint16_t DEFAULT_PROC_FREQ            = (100);      /* Hz */
 
-    const int16_t MIN_NOTE_NUMBER               = (0);
-    const int16_t MAX_NOTE_NUMBER               = (95);
-    const int16_t DEFAULT_NOTE_NUMBER           = (0);
+    constexpr int16_t MIN_NOTE_NUMBER               = (0);
+    constexpr int16_t MAX_NOTE_NUMBER               = (95);
+    constexpr int16_t DEFAULT_NOTE_NUMBER           = (0);
 
-    const int16_t MAX_REPEATING_DOT_LENGTH      = (3);
+    constexpr int16_t MAX_REPEATING_DOT_LENGTH      = (3);
 
-    const int16_t MIN_OCTAVE                    = (1);
-    const int16_t MAX_OCTAVE                    = (8);
-    const int16_t DEFAULT_OCTAVE                = (4);
+    constexpr int16_t MIN_OCTAVE                    = (1);
+    constexpr int16_t MAX_OCTAVE                    = (8);
+    constexpr int16_t DEFAULT_OCTAVE                = (4);
 
-    const int16_t MIN_GATE_TIME                 = (1);
-    const int16_t MAX_GATE_TIME                 = (8);
-    const int16_t DEFAULT_GATE_TIME             = MAX_GATE_TIME;
+    constexpr int16_t MIN_GATE_TIME                 = (1);
+    constexpr int16_t MAX_GATE_TIME                 = (8);
+    constexpr int16_t DEFAULT_GATE_TIME             = MAX_GATE_TIME;
 
-    const int16_t MIN_NOISE_NP                  = (0);
-    const int16_t MAX_NOISE_NP                  = (31);
-    const int16_t DEFAULT_NOISE_NP              = (16);
+    constexpr int16_t MIN_NOISE_NP                  = (0);
+    constexpr int16_t MAX_NOISE_NP                  = (31);
+    constexpr int16_t DEFAULT_NOISE_NP              = (16);
 
-    const int16_t MAX_LOOP_NESTING_DEPTH        = (3);
+    constexpr int16_t MAX_LOOP_NESTING_DEPTH        = (3);
 
-    const int16_t MAX_FIN_PRI_LOOP_TRY          = (15);
+    constexpr int16_t MAX_FIN_PRI_LOOP_TRY          = (15);
 
-    const int16_t MIN_LOOP_TIMES                = (0);
-    const int16_t MAX_LOOP_TIMES                = (255);
-    const int16_t DEFAULT_LOOP_TIMES            = (1);
+    constexpr int16_t MIN_LOOP_TIMES                = (0);
+    constexpr int16_t MAX_LOOP_TIMES                = (255);
+    constexpr int16_t DEFAULT_LOOP_TIMES            = (1);
 
-    const uint16_t MIN_ENVELOP_EP               = (0x0000);
-    const uint16_t MAX_ENVELOP_EP               = (0xFFFF);
-    const uint16_t DEFAULT_ENVELOP_EP           = (0x0000);
+    constexpr uint16_t MIN_ENVELOP_EP               = (0x0000);
+    constexpr uint16_t MAX_ENVELOP_EP               = (0xFFFF);
+    constexpr uint16_t DEFAULT_ENVELOP_EP           = (0x0000);
 
-    const int16_t MIN_ENVELOP_SHAPE             = (0x0);
-    const int16_t MAX_ENVELOP_SHAPE             = (0xF);
-    const int16_t DEFAULT_ENVELOP_SHAPE         = (0x0);
+    constexpr int16_t MIN_ENVELOP_SHAPE             = (0x0);
+    constexpr int16_t MAX_ENVELOP_SHAPE             = (0xF);
+    constexpr int16_t DEFAULT_ENVELOP_SHAPE         = (0x0);
 
-    const int16_t MIN_VOLUME_LEVEL              = (0);
-    const int16_t MAX_VOLUME_LEVEL              = (15);
-    const int16_t DEFAULT_VOLUME_LEVEL          = (15);
+    constexpr int16_t MIN_VOLUME_LEVEL              = (0);
+    constexpr int16_t MAX_VOLUME_LEVEL              = (15);
+    constexpr int16_t DEFAULT_VOLUME_LEVEL          = (15);
 
-    const uint16_t MIN_TEMPO                    = (10);
-    const uint16_t MAX_TEMPO                    = (1000);
-    const uint16_t DEFAULT_TEMPO                = (120);
+    constexpr uint16_t MIN_TEMPO                    = (10);
+    constexpr uint16_t MAX_TEMPO                    = (1000);
+    constexpr uint16_t DEFAULT_TEMPO                = (120);
 
-    const uint16_t MIN_SPEED_FACTOR             = (20);     // 20%
-    const uint16_t MAX_SPEED_FACTOR             = (500);    // 500%
-    const uint16_t DEFAULT_SPEED_FACTOR         = (100);    // 100%
+    constexpr uint16_t MIN_SPEED_FACTOR             = (20);     // 20%
+    constexpr uint16_t MAX_SPEED_FACTOR             = (500);    // 500%
+    constexpr uint16_t DEFAULT_SPEED_FACTOR         = (100);    // 100%
 
-    const int16_t MIN_FREQ_SHIFT_DEGREES        = (-360*5);
-    const int16_t MAX_FREQ_SHIFT_DEGREES        = (360*5);
-    const int16_t DEFAULT_FREQ_SHIFT_DEGREES    = (0);
+    constexpr int16_t MIN_FREQ_SHIFT_DEGREES        = (-360*5);
+    constexpr int16_t MAX_FREQ_SHIFT_DEGREES        = (360*5);
+    constexpr int16_t DEFAULT_FREQ_SHIFT_DEGREES    = (0);
 
-    const int16_t MIN_NOTE_LENGTH               = (1);
-    const int16_t MAX_NOTE_LENGTH               = (128);
-    const int16_t DEFAULT_NOTE_LENGTH           = (4);
+    constexpr int16_t MIN_NOTE_LENGTH               = (1);
+    constexpr int16_t MAX_NOTE_LENGTH               = (128);
+    constexpr int16_t DEFAULT_NOTE_LENGTH           = (4);
 
-    const uint16_t MAX_MML_TEXT_LEN             = (0xFFFE);
+    constexpr uint16_t MAX_MML_TEXT_LEN             = (0xFFFE);
 
-    const int16_t SW_ENV_MODE_OFF               = (0);
-    const int16_t SW_ENV_MODE_ON                = (1);
-    const int16_t MIN_SW_ENV_MODE               = SW_ENV_MODE_OFF;
-    const int16_t MAX_SW_ENV_MODE               = SW_ENV_MODE_ON;
-    const int16_t DEFAULT_SW_ENV_MODE           = SW_ENV_MODE_OFF;
+    constexpr int16_t SW_ENV_MODE_OFF               = (0);
+    constexpr int16_t SW_ENV_MODE_ON                = (1);
+    constexpr int16_t MIN_SW_ENV_MODE               = SW_ENV_MODE_OFF;
+    constexpr int16_t MAX_SW_ENV_MODE               = SW_ENV_MODE_ON;
+    constexpr int16_t DEFAULT_SW_ENV_MODE           = SW_ENV_MODE_OFF;
 
-    const uint16_t MIN_SW_ENV_TIME_UNIT         = (0);
-    const uint16_t MAX_SW_ENV_TIME_UNIT         = (8192);
-    const uint16_t DEFAULT_SW_ENV_TIME_UNIT     = (0);
+    constexpr uint16_t MIN_SW_ENV_TIME_UNIT         = (0);
+    constexpr uint16_t MAX_SW_ENV_TIME_UNIT         = (8192);
+    constexpr uint16_t DEFAULT_SW_ENV_TIME_UNIT     = (0);
 
-    const int16_t MIN_SOFT_ENVELOPE_ATTACK      = (0);
-    const int16_t MAX_SOFT_ENVELOPE_ATTACK      = (10000);
-    const int16_t DEFAULT_SOFT_ENVELOPE_ATTACK  = (0);
+    constexpr int16_t MIN_SOFT_ENVELOPE_ATTACK      = (0);
+    constexpr int16_t MAX_SOFT_ENVELOPE_ATTACK      = (10000);
+    constexpr int16_t DEFAULT_SOFT_ENVELOPE_ATTACK  = (0);
 
-    const int16_t MIN_SOFT_ENVELOPE_HOLD        = (0);
-    const int16_t MAX_SOFT_ENVELOPE_HOLD        = (10000);
-    const int16_t DEFAULT_SOFT_ENVELOPE_HOLD    = (0);
+    constexpr int16_t MIN_SOFT_ENVELOPE_HOLD        = (0);
+    constexpr int16_t MAX_SOFT_ENVELOPE_HOLD        = (10000);
+    constexpr int16_t DEFAULT_SOFT_ENVELOPE_HOLD    = (0);
 
-    const int16_t MIN_SOFT_ENVELOPE_DECAY       = (0);
-    const int16_t MAX_SOFT_ENVELOPE_DECAY       = (10000);
-    const int16_t DEFAULT_SOFT_ENVELOPE_DECAY   = (0);
+    constexpr int16_t MIN_SOFT_ENVELOPE_DECAY       = (0);
+    constexpr int16_t MAX_SOFT_ENVELOPE_DECAY       = (10000);
+    constexpr int16_t DEFAULT_SOFT_ENVELOPE_DECAY   = (0);
 
-    const uint16_t MIN_SOFT_ENVELOPE_SUSTAIN     = (0);
-    const uint16_t MAX_SOFT_ENVELOPE_SUSTAIN     = (1500);
-    const uint16_t DEFAULT_SOFT_ENVELOPE_SUSTAIN = (100);
+    constexpr uint16_t MIN_SOFT_ENVELOPE_SUSTAIN     = (0);
+    constexpr uint16_t MAX_SOFT_ENVELOPE_SUSTAIN     = (1500);
+    constexpr uint16_t DEFAULT_SOFT_ENVELOPE_SUSTAIN = (100);
 
-    const int16_t MIN_SOFT_ENVELOPE_FADE        = (0);
-    const int16_t MAX_SOFT_ENVELOPE_FADE        = (10000);
-    const int16_t DEFAULT_SOFT_ENVELOPE_FADE    = (0);
+    constexpr int16_t MIN_SOFT_ENVELOPE_FADE        = (0);
+    constexpr int16_t MAX_SOFT_ENVELOPE_FADE        = (10000);
+    constexpr int16_t DEFAULT_SOFT_ENVELOPE_FADE    = (0);
 
-    const int16_t MIN_SOFT_ENVELOPE_RELEASE     = (0);
-    const int16_t MAX_SOFT_ENVELOPE_RELEASE     = (10000);
-    const int16_t DEFAULT_SOFT_ENVELOPE_RELEASE = (0);
+    constexpr int16_t MIN_SOFT_ENVELOPE_RELEASE     = (0);
+    constexpr int16_t MAX_SOFT_ENVELOPE_RELEASE     = (10000);
+    constexpr int16_t DEFAULT_SOFT_ENVELOPE_RELEASE = (0);
 
-    const int16_t MIN_BIAS_LEVEL                = (-500);
-    const int16_t MAX_BIAS_LEVEL                = (500);
-    const int16_t DEFAULT_BIAS_LEVEL            = (0);
-    const int16_t BIAS_LEVEL_OFS                = (500);
+    constexpr int16_t MIN_BIAS_LEVEL                = (-500);
+    constexpr int16_t MAX_BIAS_LEVEL                = (500);
+    constexpr int16_t DEFAULT_BIAS_LEVEL            = (0);
+    constexpr int16_t BIAS_LEVEL_OFS                = (500);
 
-    const uint16_t MIN_LFO_SPEED_UNIT           = (0);
-    const uint16_t MAX_LFO_SPEED_UNIT           = (8192);
-    const uint16_t DEFAULT_LFO_SPEED_UNIT       = (0);
+    constexpr uint16_t MIN_LFO_SPEED_UNIT           = (0);
+    constexpr uint16_t MAX_LFO_SPEED_UNIT           = (8192);
+    constexpr uint16_t DEFAULT_LFO_SPEED_UNIT       = (0);
 
-    const int16_t MIN_LFO_SPEED                 = (-200);
-    const int16_t MAX_LFO_SPEED                 = (200);
-    const int16_t DEFAULT_LFO_SPEED             = (40);
+    constexpr int16_t MIN_LFO_SPEED                 = (-200);
+    constexpr int16_t MAX_LFO_SPEED                 = (200);
+    constexpr int16_t DEFAULT_LFO_SPEED             = (40);
 
-    const int16_t MIN_LFO_DEPTH                 = (0);
-    const int16_t MAX_LFO_DEPTH                 = (255);
-    const int16_t DEFAULT_LFO_DEPTH             = (0);
+    constexpr int16_t MIN_LFO_DEPTH                 = (0);
+    constexpr int16_t MAX_LFO_DEPTH                 = (255);
+    constexpr int16_t DEFAULT_LFO_DEPTH             = (0);
 
-    const int16_t MIN_LFO_DELAY                 = (0);
-    const int16_t MAX_LFO_DELAY                 = (128);
-    const int16_t DEFAULT_LFO_DELAY             = (0);
+    constexpr int16_t MIN_LFO_DELAY                 = (0);
+    constexpr int16_t MAX_LFO_DELAY                 = (128);
+    constexpr int16_t DEFAULT_LFO_DELAY             = (0);
 
-    const int16_t MIN_PITCHBEND_LEVEL           = (-360*8);
-    const int16_t MAX_PITCHBEND_LEVEL           = (360*8);
-    const int16_t DEFAULT_PITCHBEND_LEVEL       = (0);
+    constexpr int16_t MIN_PITCHBEND_LEVEL           = (-360*8);
+    constexpr int16_t MAX_PITCHBEND_LEVEL           = (360*8);
+    constexpr int16_t DEFAULT_PITCHBEND_LEVEL       = (0);
 
-    const int16_t LFO_MODE_OFF                  = (0);
-    const int16_t LFO_MODE_TRIANGLE             = (1);
-    const int16_t MIN_LFO_MODE                  = LFO_MODE_OFF;
-    const int16_t MAX_LFO_MODE                  = LFO_MODE_TRIANGLE;
-    const int16_t DEFAULT_LFO_MODE              = LFO_MODE_OFF;
+    constexpr int16_t LFO_MODE_OFF                  = (0);
+    constexpr int16_t LFO_MODE_TRIANGLE             = (1);
+    constexpr int16_t MIN_LFO_MODE                  = LFO_MODE_OFF;
+    constexpr int16_t MAX_LFO_MODE                  = LFO_MODE_TRIANGLE;
+    constexpr int16_t DEFAULT_LFO_MODE              = LFO_MODE_OFF;
 
-    const int32_t Q_PITCHBEND_FACTOR            = (16809550);   /* POW(2, 1/360) << 24 */
-    const int32_t Q_PITCHBEND_FACTOR_N          = (16744944);   /* POW(2,-1/360) << 24 */
+    constexpr int32_t Q_PITCHBEND_FACTOR            = (16809550);   /* POW(2, 1/360) << 24 */
+    constexpr int32_t Q_PITCHBEND_FACTOR_N          = (16744944);   /* POW(2,-1/360) << 24 */
 
-    const int32_t Q_CALCTP_FACTOR               = (17774841);   /* POW(2, 1/12)  << 24 */
-    const int32_t Q_CALCTP_FACTOR_N             = (15835583);   /* POW(2,-1/12)  << 24 */
+    constexpr int32_t Q_CALCTP_FACTOR               = (17774841);   /* POW(2, 1/12)  << 24 */
+    constexpr int32_t Q_CALCTP_FACTOR_N             = (15835583);   /* POW(2,-1/12)  << 24 */
 
     struct SYS_STATUS
     {
