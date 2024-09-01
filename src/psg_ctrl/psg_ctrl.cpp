@@ -1278,6 +1278,9 @@ namespace
 
                 /* Apply shift-degs to tp_end. */
                 tp_end = shift_tp(tp_end, slot.gl_info.shift_degrees);
+
+                /* Apply the TP offset to the BIAS calculation result for fine adjustments, such as detuning. */
+                tp_end = (uint16_t)sat(tp_end + (int16_t)p_ch_info->tone.tp_ofs, MIN_TP, MAX_TP);
             }
             else
             {
