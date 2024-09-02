@@ -33,10 +33,11 @@ public:
      * The `reset` function pointer, if provided, will be called during the execution of the `Reset()` method.
      * Register this function if you want to perform a hardware reset of the PSG during `Reset()`.
      */
-    Psgino(void (*write)(uint8_t addr, uint8_t data)
-         , float fs_clock
-         , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
-         , void (*reset)() = nullptr
+    Psgino(
+            void (*write)(uint8_t addr, uint8_t data),
+            float fs_clock,
+            uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ,
+            void (*reset)() = nullptr
     );
 
     /**
@@ -82,7 +83,9 @@ public:
      * 
      * @param cb Function pointer for the user callback.
      */
-    void SetUserCallback(void (*cb)(uint8_t ch, int32_t param));
+    void SetUserCallback(
+            void (*cb)(uint8_t ch, int32_t param)
+    );
 
     /**
      * @brief Completes the primary loop of the PSG processing.
@@ -127,10 +130,11 @@ public:
      * The `reset` function pointer, if provided, will be called during the execution of the `Reset()` method.
      * Register this function if you want to perform a hardware reset of the PSG during `Reset()`.
      */
-    virtual void Initialize(void (*write)(uint8_t addr, uint8_t data)
-         , float fs_clock
-         , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
-         , void (*reset)() = nullptr
+    virtual void Initialize(
+            void (*write)(uint8_t addr, uint8_t data),
+            float fs_clock,
+            uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ,
+            void (*reset)() = nullptr
     );
 
     /**
@@ -204,10 +208,11 @@ public:
      * The `reset` function pointer, if provided, will be called during the execution of the `Reset()` method.
      * Register this function if you want to perform a hardware reset of the PSG during `Reset()`.
      */
-    PsginoZ(void (*write)(uint8_t addr, uint8_t data)
-          , float fs_clock
-          , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
-          , void (*reset)() = nullptr
+    PsginoZ(
+            void (*write)(uint8_t addr, uint8_t data),
+            float fs_clock,
+            uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ,
+            void (*reset)() = nullptr
     );
 
     /**
@@ -245,7 +250,9 @@ public:
      * 
      * @param cb Function pointer for the user callback.
      */
-    void SetSeUserCallback(void (*cb)(uint8_t ch, int32_t param));
+    void SetSeUserCallback(
+            void (*cb)(uint8_t ch, int32_t param)
+    );
 
     /**
      * @brief Sets the speed factor specifically for SE playback.
@@ -282,10 +289,11 @@ public:
      * The `reset` function pointer, if provided, will be called during the execution of the `Reset()` method.
      * Register this function if you want to perform a hardware reset of the PSG during `Reset()`.
      */
-    void Initialize(void (*write)(uint8_t addr, uint8_t data)
-         , float fs_clock
-         , uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ
-         , void (*reset)() = nullptr
+    void Initialize(
+            void (*write)(uint8_t addr, uint8_t data),
+            float fs_clock,
+            uint16_t proc_freq = PsgCtrl::DEFAULT_PROC_FREQ,
+            void (*reset)() = nullptr
     ) override;
 
     /**

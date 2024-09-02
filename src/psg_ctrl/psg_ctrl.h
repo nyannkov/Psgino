@@ -10,8 +10,9 @@
 #include <stddef.h>
 
 #pragma pack(1)
-namespace PsgCtrl
-{
+
+namespace PsgCtrl {
+
     constexpr uint8_t DEFAULT_MML_VERSION           = (1);
     constexpr int16_t NUM_CHANNEL                   = (3);
 
@@ -181,8 +182,7 @@ namespace PsgCtrl
     constexpr int32_t Q_CALCTP_FACTOR               = (17774841);   /* POW(2, 1/12)  << 24 */
     constexpr int32_t Q_CALCTP_FACTOR_N             = (15835583);   /* POW(2,-1/12)  << 24 */
 
-    struct SYS_STATUS
-    {
+    struct SYS_STATUS {
         uint16_t    SET_MML        : 1;
         uint16_t    REVERSE        : 1;
         uint16_t    NUM_CH_IMPL    : 2;
@@ -194,8 +194,7 @@ namespace PsgCtrl
         uint16_t                   : 1;
     };
 
-    struct SYS_REQUEST
-    {
+    struct SYS_REQUEST {
         uint8_t    CTRL_REQ        : 2;
         uint8_t                    : 6;
         uint8_t    CTRL_REQ_FLAG   : 1;
@@ -203,8 +202,7 @@ namespace PsgCtrl
         uint8_t                    : 6;
     };
 
-    struct CH_STATUS
-    {
+    struct CH_STATUS {
         uint16_t    DECODE_END     : 1;
         uint16_t    LEGATO         : 1;
         uint16_t    LFO_MODE       : 3;
@@ -217,8 +215,7 @@ namespace PsgCtrl
         uint16_t                   : 1;
     };
 
-    struct NOISE_INFO
-    {
+    struct NOISE_INFO {
         uint16_t    sweep_time;
         uint16_t    NP_INT         : 5;
         uint16_t    NP_FRAC        : 6;
@@ -231,8 +228,7 @@ namespace PsgCtrl
         uint8_t                    : 3;
     };
 
-    struct GLOBAL_INFO
-    {
+    struct GLOBAL_INFO {
         SYS_STATUS  sys_status;
         SYS_REQUEST sys_request;
         uint32_t    s_clock;
@@ -243,13 +239,11 @@ namespace PsgCtrl
         NOISE_INFO  noise_info;
     };
 
-    struct CALLBACK_INFO
-    {
+    struct CALLBACK_INFO {
         void (*user_callback)(uint8_t ch, int32_t param);
     };
 
-    struct MML_INFO
-    {
+    struct MML_INFO {
         const char *p_mml_head;
         uint16_t    mml_len;
         uint16_t    ofs_mml_pos;
@@ -258,8 +252,7 @@ namespace PsgCtrl
         uint8_t     prim_loop_counter;
     };
 
-    struct TONE_INFO
-    {
+    struct TONE_INFO {
         uint16_t    tempo;
         uint8_t     note_len;
         int8_t      tp_ofs;
@@ -272,8 +265,7 @@ namespace PsgCtrl
         uint16_t               : 1;
     };
 
-    struct TIME_INFO
-    {
+    struct TIME_INFO {
         uint16_t    note_on;
         uint16_t    gate;
         uint16_t    sw_env;
@@ -283,8 +275,7 @@ namespace PsgCtrl
         uint16_t                   : 4;
     };
 
-    struct LFO_INFO
-    {
+    struct LFO_INFO {
         int16_t     speed;
         uint8_t     depth;
         uint8_t     BASE_TP_L  : 8;
@@ -296,8 +287,7 @@ namespace PsgCtrl
         uint16_t    speed_unit;
     };
 
-    struct SW_ENV_INFO
-    {
+    struct SW_ENV_INFO {
         uint16_t    attack_tk;
         uint16_t    hold_tk;
         uint16_t    decay_tk;
@@ -311,8 +301,7 @@ namespace PsgCtrl
         uint16_t    time_unit;
     };
 
-    struct PITCHBEND_INFO
-    {
+    struct PITCHBEND_INFO {
         int16_t  level;
         uint16_t TP_FRAC    : 6;
         uint16_t TP_D_FRAC  : 6;
@@ -322,8 +311,7 @@ namespace PsgCtrl
         uint32_t TP_END_H   : 8;
     };
 
-    struct CHANNEL_INFO
-    {
+    struct CHANNEL_INFO {
         CH_STATUS       ch_status;
         MML_INFO        mml;
         TONE_INFO       tone;
@@ -333,31 +321,33 @@ namespace PsgCtrl
         PITCHBEND_INFO  pitchbend;
     };
 
-    struct PSG_REG
-    {
+    struct PSG_REG {
         uint16_t   flags_addr;
         uint8_t    flags_mixer;
         uint8_t    data[16];
     };
 
-    struct SLOT
-    {
+    struct SLOT {
         GLOBAL_INFO     gl_info;
         CALLBACK_INFO   cb_info;
         CHANNEL_INFO   *ch_info_list[NUM_CHANNEL];
         PSG_REG         psg_reg;
     };
 
-    void init_slot( SLOT    &slot
-            , uint32_t      s_clock
-            , uint16_t      proc_freq
-            , bool          reverse
-            , CHANNEL_INFO  *p_ch0
-            , CHANNEL_INFO  *p_ch1 = nullptr
-            , CHANNEL_INFO  *p_ch2 = nullptr
-            );
+    void init_slot(
+            SLOT &slot,
+            uint32_t s_clock,
+            uint16_t proc_freq,
+            bool reverse,
+            CHANNEL_INFO *p_ch0,
+            CHANNEL_INFO *p_ch1 = nullptr,
+            CHANNEL_INFO *p_ch2 = nullptr
+    );
     int set_mml(SLOT &slot, const char *p_mml, uint16_t mode);
-    void set_user_callback(SLOT &slot, void (*callback)(uint8_t ch, int32_t param));
+    void set_user_callback(
+            SLOT &slot,
+            void (*callback)(uint8_t ch, int32_t param)
+    );
     void control_psg(SLOT &slot);
     void reset(SLOT &slot);
     void set_speed_factor(SLOT &slot, uint16_t speed_factor);
