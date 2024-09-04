@@ -9,11 +9,6 @@
 namespace PsgCtrl {
 namespace {
 
-    int32_t sat(int32_t x, int32_t min, int32_t max);
-    uint16_t U16(uint8_t h, uint8_t l);
-    uint8_t U16_HI(uint16_t x);
-    uint8_t U16_LO(uint16_t x);
-
     bool parse_mml_header(SLOT &slot, const char **pp_text);
 
     int16_t decode_mml(SLOT &slot, uint8_t ch);
@@ -105,7 +100,7 @@ namespace {
             uint16_t tempo,
             uint16_t proc_freq
     );
-    uint16_t get_sus_volume(SLOT &slot, uint8_t ch);
+    uint16_t get_sus_volume(const SLOT &slot, uint8_t ch);
     void trans_sw_env_state(SLOT &slot, uint8_t ch);
     void update_sw_env_volume(SLOT &slot, uint8_t ch);
     void proc_sw_env_gen(SLOT &slot, uint8_t ch);
@@ -118,7 +113,7 @@ namespace {
     inline char to_upper_case(char c) {
 
         if ( ('a' <= c) && (c <= 'z') ) {
-            c &= (uint8_t)~0x20UL;
+            c &= static_cast<uint8_t>(~0x20UL);
         }
 
         return c;
@@ -138,19 +133,31 @@ namespace {
     }
 
 
-    uint16_t U16(uint8_t h, uint8_t l) {
+    inline uint16_t U16(uint8_t h, uint8_t l) {
 
-        return (((uint16_t)(h)<<8)|(l));
+        return (static_cast<uint16_t>(h)<<8) | (l);
     }
 
-    uint8_t U16_HI(uint16_t x) {
+    inline uint8_t U16_HI(uint16_t x) {
 
         return (((x)>>8)&0xFF);
     }
 
-    uint8_t U16_LO(uint16_t x) {
+    inline uint8_t U16_LO(uint16_t x) {
 
         return (((x)>>0)&0xFF);
+    }
+
+    inline int32_t SAT(int32_t x, int32_t min, int32_t max) {
+
+        return( (x <= min ) ? min
+              : (x >= max ) ? max
+              :  x
+              );
+    }
+
+    inline uint8_t mask_channel(uint8_t ch) {
+        return (ch & 0x3);
     }
 
     uint16_t sw_env_time2tk(
@@ -163,12 +170,12 @@ namespace {
         if ( time_unit == 0 ) {
 
             /* env_time unit is msec */
-            return ((uint32_t)env_time*proc_freq+500)/1000;
+            return (static_cast<uint32_t>(env_time)*proc_freq+500)/1000;
 
         } else if ( tempo != 0 ) {
 
             /* env_time unit is note-unit */
-            return ((uint32_t)env_time*proc_freq*4*60)/((uint32_t)tempo*time_unit);
+            return (static_cast<uint32_t>(env_time)*proc_freq*4*60)/(static_cast<uint32_t>(tempo)*time_unit);
 
         } else {
 
@@ -184,16 +191,10 @@ namespace {
 
         } else {
 
-            return (int16_t)(freq_value * tempo * speed_unit) / 240;
+            int32_t result = static_cast<int32_t>(freq_value) * tempo * speed_unit;
+
+            return static_cast<int16_t>(result/240);
         }
-    }
-
-    int32_t sat(int32_t x, int32_t min, int32_t max) {
-
-        return( (x <= min ) ? min
-              : (x >= max ) ? max
-              :  x
-              );
     }
 
     void skip_white_space(const char **pp_text) {
@@ -229,7 +230,7 @@ namespace {
         /* The MML version number must start immediately after the colon. */
         if ( to_upper_case(*p_pos) == 'V' ) {
 
-            value = std::strtol(&p_pos[1], (char**)&p_pos, 10);
+            value = std::strtol(&p_pos[1], const_cast<char**>(&p_pos), 10);
 
             /* Here is a provisional implementation. This processing will change according to the MML version upgrade. */
             if ( value == 1 ) {
@@ -244,7 +245,7 @@ namespace {
             switch ( to_upper_case(*p_pos) ) {
 
             case 'M':
-                value = std::strtol(&p_pos[1], (char**)&p_pos, 10);
+                value = std::strtol(&p_pos[1], const_cast<char**>(&p_pos), 10);
                 slot.gl_info.sys_status.RH_LEN = (( value & 0x1 ) != 0) ? 1 : 0;
                 break;
 
@@ -305,7 +306,7 @@ namespace {
         uint32_t q24_f;
         uint64_t lq24_tp;
 
-        lq24_tp = (uint64_t)tp<<24;
+        lq24_tp = static_cast<uint64_t>(tp)<<24;
 
         if ( bias >= 0 ) {
 
@@ -329,8 +330,8 @@ namespace {
             lq24_tp >>= 24;
         }
 
-        lq24_tp += ((uint32_t)1)<<23;
-        tp = (uint16_t)(lq24_tp>>24);
+        lq24_tp += 1<<23;
+        tp = static_cast<uint16_t>(lq24_tp>>24);
 
         return ( (tp < MAX_TP) ? tp : MAX_TP );
     }
@@ -347,7 +348,7 @@ namespace {
         n -= 45;
         q = n/12;
 
-        lq24_hertz = (int64_t)440<<24;
+        lq24_hertz = static_cast<int64_t>(440)<<24;
         if ( n >= 0 ) {
 
             lq24_hertz <<= q;
@@ -367,7 +368,7 @@ namespace {
             lq24_hertz >>= 24;
         }
 
-        lq24_clock = (int64_t)s_clock<<24;
+        lq24_clock = static_cast<int64_t>(s_clock)<<24;
 
         tp = (lq24_clock/(1600*lq24_hertz));
 
@@ -376,7 +377,7 @@ namespace {
             tp = MAX_TP;
         }
 
-        return (uint16_t)tp;
+        return static_cast<uint16_t>(tp);
     }
 
     const char * read_number_ex(
@@ -398,7 +399,7 @@ namespace {
             return p_tail;
         }
 
-        n = std::strtol(p_pos, (char**)&p_pos_next, 10);
+        n = std::strtol(p_pos, const_cast<char**>(&p_pos_next), 10);
 
         is_omitted = (p_pos == p_pos_next);
 
@@ -407,7 +408,7 @@ namespace {
             n = default_value;
         }
 
-        *p_out = sat(n, min, max);
+        *p_out = SAT(n, min, max);
 
         if ( p_is_omitted != nullptr ) {
 
@@ -528,25 +529,25 @@ namespace {
             }
         }
 
-        n = sat(n, MIN_NOTE_NUMBER, MAX_NOTE_NUMBER);
+        n = SAT(n, MIN_NOTE_NUMBER, MAX_NOTE_NUMBER);
 
         *p_out = n;
 
         return p;
     }
 
-    uint16_t get_sus_volume(SLOT &slot, uint8_t ch) {
+    uint16_t get_sus_volume(const SLOT &slot, uint8_t ch) {
 
-        const CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
-        uint16_t sus_volume;
+        const CHANNEL_INFO *p_ch_info = slot.ch_info_list[mask_channel(ch)];
+        uint32_t sus_volume;
 
-        sus_volume = ( p_ch_info->sw_env.sustain * ((uint16_t)p_ch_info->tone.VOLUME) + 50)/100;
+        sus_volume =  (static_cast<uint32_t>(p_ch_info->sw_env.sustain) * p_ch_info->tone.VOLUME + 50)/100;
 
         if ( sus_volume > MAX_VOLUME_LEVEL ) {
 
             sus_volume = MAX_VOLUME_LEVEL;
         }
-        return sus_volume;
+        return static_cast<uint16_t>(sus_volume);
     }
 
     void trans_sw_env_state(SLOT &slot, uint8_t ch) {
@@ -569,7 +570,7 @@ namespace {
 
                 p_ch_info->sw_env.VOL_INT = 0;
                 p_ch_info->sw_env.VOL_FRAC = 0;
-                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.attack_tk * q12_time_factor + (1<<11)) >> 12;
+                p_ch_info->time.sw_env = (static_cast<uint32_t>(p_ch_info->sw_env.attack_tk) * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_ATTACK;
                 break;
             }
@@ -580,7 +581,7 @@ namespace {
 
                 p_ch_info->sw_env.VOL_INT  = p_ch_info->tone.VOLUME;
                 p_ch_info->sw_env.VOL_FRAC = 0;
-                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.hold_tk * q12_time_factor + (1<<11)) >> 12;
+                p_ch_info->time.sw_env = (static_cast<uint32_t>(p_ch_info->sw_env.hold_tk) * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_HOLD;
                 break;
             }
@@ -591,7 +592,7 @@ namespace {
 
                 p_ch_info->sw_env.VOL_INT  = p_ch_info->tone.VOLUME;
                 p_ch_info->sw_env.VOL_FRAC = 0;
-                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.decay_tk * q12_time_factor + (1<<11)) >> 12;
+                p_ch_info->time.sw_env = (static_cast<uint32_t>(p_ch_info->sw_env.decay_tk) * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT= SW_ENV_STAT_DECAY;
                 break;
             }
@@ -601,7 +602,7 @@ namespace {
 
             p_ch_info->sw_env.VOL_INT  = get_sus_volume(slot, ch);
             p_ch_info->sw_env.VOL_FRAC = 0;
-            p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.fade_tk * q12_time_factor + (1<<11)) >> 12;
+            p_ch_info->time.sw_env = (static_cast<uint32_t>(p_ch_info->sw_env.fade_tk) * q12_time_factor + (1<<11)) >> 12;
             p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_FADE;
             break;
 
@@ -611,7 +612,7 @@ namespace {
 
                 p_ch_info->sw_env.REL_VOL_INT = p_ch_info->sw_env.VOL_INT;
                 p_ch_info->sw_env.REL_VOL_FRAC = p_ch_info->sw_env.VOL_FRAC;
-                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->sw_env.release_tk * q12_time_factor + (1<<11)) >> 12;
+                p_ch_info->time.sw_env = (static_cast<uint32_t>(p_ch_info->sw_env.release_tk) * q12_time_factor + (1<<11)) >> 12;
                 p_ch_info->ch_status.SW_ENV_STAT = SW_ENV_STAT_RELEASE;
                 break;
             }
@@ -679,7 +680,9 @@ namespace {
         uint32_t q6_tp_d;
         uint32_t q6_tp_end;
         uint16_t tp_int;
-        CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
+        CHANNEL_INFO *p_ch_info;
+
+        p_ch_info = slot.ch_info_list[mask_channel(ch)];
 
         if ( p_ch_info->time.pitchbend > 0 ) {
 
@@ -836,7 +839,7 @@ namespace {
         q6_np      = (q6_np<<6)|p_noise_info->NP_FRAC;
         q6_np_d    = p_noise_info->NP_D_INT;
         q6_np_d    = (q6_np_d<<6)|p_noise_info->NP_D_FRAC;
-        q6_np_end  = ((uint32_t)p_noise_info->NP_END << 6);
+        q6_np_end  = (static_cast<uint32_t>(p_noise_info->NP_END) << 6);
 
         if ( p_noise_info->SWEEP_STAT == NOISE_SWEEP_STAT_NP_UP ) {
 
@@ -883,11 +886,10 @@ namespace {
         const char *p;
         int32_t octave;
         int16_t note_num;
-        uint8_t col_num;
         bool is_end_detected = false;
 
         /* Change octave */
-        octave = sat(default_octave, MIN_OCTAVE, MAX_OCTAVE);
+        octave = SAT(default_octave, MIN_OCTAVE, MAX_OCTAVE);
 
         for ( p = p_pos; p < p_tail; p++ ) {
 
@@ -929,10 +931,12 @@ namespace {
 
         if ( is_end_detected ) {
 
+            uint8_t col_num;
+
             col_num = get_tp_table_column_number(*p);
-            note_num = (int32_t)((uint32_t)col_num&0xFFu) + (octave-1)*12;
+            note_num = static_cast<int32_t>(col_num&0xFFu) + (octave-1)*12;
             /* Shift Note-Number */
-            p = shift_half_note_number(
+            shift_half_note_number(
                     p+1,
                     p_tail,
                     note_num,
@@ -963,7 +967,7 @@ namespace {
             return 0;
         }
 
-        q12_time_delta = (((uint32_t)proc_freq*4*60)<<12) / (tempo*(uint16_t)note_len);
+        q12_time_delta = ((static_cast<uint32_t>(proc_freq)*4*60)<<12) / (tempo*(static_cast<uint16_t>(note_len)));
         q12_time = q12_time_delta;
 
         while ( dot_cnt > 0 ) {
@@ -1203,10 +1207,8 @@ namespace {
         int32_t legato_end_note_num;
         int32_t note_len;
         char head;
-        uint8_t col_num;
         uint8_t dot_cnt;
         bool is_note_len_omitted;
-        bool is_use_global_note_len;
         bool is_start_legato_effect;
         CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
         enum {
@@ -1227,12 +1229,14 @@ namespace {
 
         if ( ('A' <= head) && (head <= 'G') ) {
 
+            uint8_t col_num;
+
             /* Set Note-Type */
             note_type = E_NOTE_TYPE_TONE;
 
             /* Get Note-Number */
             col_num = get_tp_table_column_number(head);
-            note_num = col_num + ((uint16_t)p_ch_info->tone.OCTAVE)*12;
+            note_num = col_num + static_cast<uint16_t>(p_ch_info->tone.OCTAVE)*12;
 
             /* Shift Note-Number */
             p_pos = shift_half_note_number(
@@ -1254,13 +1258,11 @@ namespace {
                     &is_note_len_omitted
             );
 
-            is_use_global_note_len = is_note_len_omitted;
-
             /* Count Dot-Repetition */
             dot_cnt = 0;
             p_pos = count_dot(p_pos, p_tail, &dot_cnt);
-            if ( is_use_global_note_len ) {
-
+            if ( is_note_len_omitted ) {
+                // Use global note length
                 dot_cnt += p_ch_info->tone.LEN_DOTS;
             }
 
@@ -1271,7 +1273,7 @@ namespace {
                 p_pos = get_legato_end_note_num(
                         p_pos+1,
                         p_tail,
-                        (int32_t)p_ch_info->tone.OCTAVE+1,
+                        static_cast<int32_t>(p_ch_info->tone.OCTAVE)+1,
                         &legato_end_note_num,
                         note_num
                 );
@@ -1354,11 +1356,12 @@ namespace {
                 dot_cnt = 0;
                 p_pos = count_dot(p_pos, p_tail, &dot_cnt);
 
-                is_use_global_note_len = true;
                 note_len = p_ch_info->tone.note_len;
                 dot_cnt += p_ch_info->tone.LEN_DOTS;
 
             } else {
+
+                bool is_use_global_note_len;
 
                 if ( note_type == E_NOTE_TYPE_NOISE ) {
 
@@ -1419,7 +1422,7 @@ namespace {
             uint16_t tp;
             uint16_t tp_end;
             int16_t bias;
-            bias = (int16_t)p_ch_info->tone.BIAS - BIAS_LEVEL_OFS;
+            bias = static_cast<int16_t>(p_ch_info->tone.BIAS) - BIAS_LEVEL_OFS;
             /* Apply bias-level to tp. */
             tp = shift_tp(calc_tp(note_num, slot.gl_info.s_clock), bias);
 
@@ -1427,7 +1430,7 @@ namespace {
             tp = shift_tp(tp, slot.gl_info.shift_degrees);
 
             /* Apply the TP offset to the BIAS calculation result for fine adjustments, such as detuning. */
-            tp = (uint16_t)sat(tp + (int16_t)p_ch_info->tone.tp_ofs, MIN_TP, MAX_TP);
+            tp = static_cast<uint16_t>(SAT(tp + static_cast<uint16_t>(p_ch_info->tone.tp_ofs), MIN_TP, MAX_TP));
 
             if ( is_start_legato_effect ) {
 
@@ -1437,7 +1440,7 @@ namespace {
                 tp_end = shift_tp(tp_end, slot.gl_info.shift_degrees);
 
                 /* Apply the TP offset to the BIAS calculation result for fine adjustments, such as detuning. */
-                tp_end = (uint16_t)sat(tp_end + (int16_t)p_ch_info->tone.tp_ofs, MIN_TP, MAX_TP);
+                tp_end = static_cast<uint16_t>(SAT(tp_end + static_cast<uint16_t>(p_ch_info->tone.tp_ofs), MIN_TP, MAX_TP));
 
             } else {
 
@@ -1461,7 +1464,7 @@ namespace {
 
                     uint32_t q12_time_factor;
                     q12_time_factor = (100 << 12) / slot.gl_info.speed_factor;
-                    p_ch_info->time.lfo_delay = ((uint32_t)p_ch_info->lfo.delay_tk * q12_time_factor + (1<<11)) >> 12;
+                    p_ch_info->time.lfo_delay = (static_cast<uint32_t>(p_ch_info->lfo.delay_tk) * q12_time_factor + (1<<11)) >> 12;
                     p_ch_info->lfo.theta = 0;
                     p_ch_info->lfo.DELTA_FRAC = 0;
                     p_ch_info->lfo.TP_FRAC = 0;
@@ -1530,7 +1533,7 @@ namespace {
 
             q12_note_on_time  = get_note_on_time(
                     note_len,
-                    ((uint32_t)p_ch_info->tone.tempo * slot.gl_info.speed_factor + 50)/ 100,
+                    (static_cast<uint32_t>(p_ch_info->tone.tempo) * slot.gl_info.speed_factor + 50)/ 100,
                     dot_cnt,
                     slot.gl_info.proc_freq
             );
@@ -1538,7 +1541,7 @@ namespace {
             p_ch_info->time.NOTE_ON_FRAC = q12_note_on_time&0xFFF;
             p_ch_info->time.note_on = (q12_note_on_time>>12)&0xFFFF;
 
-            q12_gate_time = (q12_note_on_time * ((uint32_t)p_ch_info->tone.GATE_TIME+1))/MAX_GATE_TIME;
+            q12_gate_time = (q12_note_on_time * (static_cast<uint32_t>(p_ch_info->tone.GATE_TIME)+1))/MAX_GATE_TIME;
             p_ch_info->time.gate = (q12_gate_time>>12)&0xFFFF;
 
             is_update_mixer = false;
@@ -1603,10 +1606,7 @@ namespace {
 
         if ( p_pos >= p_tail ) {
 
-            if ( p_ch_info->ch_status.DECODE_END != 1 ) {
-
-                p_ch_info->ch_status.DECODE_END = 1;
-            }
+            p_ch_info->ch_status.DECODE_END = 1;
 
             return 1;
         }
@@ -1868,16 +1868,14 @@ namespace {
 
             if ( p_pos >= p_tail ) {
 
-                p_ch_info->mml.ofs_mml_pos = (uint16_t)(p_pos - p_head);
-                if ( p_ch_info->ch_status.DECODE_END != 1 ) {
+                p_ch_info->mml.ofs_mml_pos = static_cast<uint16_t>(p_pos - p_head);
 
-                    p_ch_info->ch_status.DECODE_END = 1;
-                }
+                p_ch_info->ch_status.DECODE_END = 1;
 
                 return 1;
             }
 
-            p_ch_info->mml.ofs_mml_pos = (uint16_t)(p_pos - p_head);
+            p_ch_info->mml.ofs_mml_pos = static_cast<uint16_t>(p_pos - p_head);
         }
 
         return 0;
@@ -1902,11 +1900,11 @@ namespace {
         case 'C':
             if ( *(*pp_pos+1) == '(' ) {
 
-                param = (int32_t)std::strtol((*pp_pos+2), (char**)pp_pos, 0);
+                param = static_cast<int32_t>(std::strtol((*pp_pos+2), const_cast<char**>(pp_pos), 0));
 
             } else {
 
-                param = (int32_t)std::strtol((*pp_pos+1), (char**)pp_pos, 10);
+                param = static_cast<int32_t>(std::strtol((*pp_pos+1), const_cast<char**>(pp_pos), 10));
             }
 
             if ( slot.cb_info.user_callback ) {
@@ -1944,7 +1942,7 @@ namespace {
             rate = top/p_ch_info->sw_env.attack_tk;
             if ( rate != 0 ) {
 
-                if ( (int32_t)(top - vol) <= rate ) {
+                if ( static_cast<int32_t>(top - vol) <= rate ) {
 
                     vol = top;
 
@@ -1964,10 +1962,10 @@ namespace {
             break;
 
         case SW_ENV_STAT_DECAY:
-            rate = (int32_t)(top-sus)/p_ch_info->sw_env.decay_tk;
+            rate = static_cast<int32_t>(top-sus)/p_ch_info->sw_env.decay_tk;
             if ( rate > 0 ) {
 
-                if ( (int32_t)(vol-sus) <= rate ) {
+                if ( static_cast<int32_t>(vol-sus) <= rate ) {
 
                     vol = sus;
 
@@ -1978,7 +1976,7 @@ namespace {
             }
             else if ( rate < 0 ) {
 
-                if ( (int32_t)(vol-sus) >= rate ) {
+                if ( static_cast<int32_t>(vol-sus) >= rate ) {
 
                     vol = sus;
 
@@ -2117,11 +2115,11 @@ namespace {
             is_phase_inverted = false;
             speed_abs = p_ch_info->lfo.speed * -1;
         }
-        speed_abs = ((uint32_t)speed_abs * slot.gl_info.speed_factor + 50)/100;
+        speed_abs = (static_cast<uint32_t>(speed_abs) * slot.gl_info.speed_factor + 50)/100;
 
         q6_omega = 1<<6;
-        q6_omega *= (uint32_t)p_ch_info->lfo.depth*4*speed_abs;
-        q6_omega /= ((uint16_t)slot.gl_info.proc_freq*MAX_LFO_PERIOD);
+        q6_omega *= static_cast<uint32_t>(p_ch_info->lfo.depth)*4*speed_abs;
+        q6_omega /= (static_cast<uint16_t>(slot.gl_info.proc_freq)*MAX_LFO_PERIOD);
 
         q6_delta = p_ch_info->lfo.DELTA_FRAC;
 
@@ -2132,12 +2130,12 @@ namespace {
 
             uint16_t theta = p_ch_info->lfo.theta;
             uint16_t depth = p_ch_info->lfo.depth;
-            uint16_t i;
-            uint64_t lq24_tp;
 
-            for ( i = 0; i < delta_int; i++ ) {
+            for ( uint16_t i = 0; i < delta_int; i++ ) {
 
-                lq24_tp = tp_next<<6;
+                uint64_t lq24_tp;
+
+                lq24_tp = static_cast<uint64_t>(tp_next)<<6;
                 lq24_tp += p_ch_info->lfo.TP_FRAC;
                 lq24_tp = lq24_tp << 18;
                 if ( (depth <= theta) && ( theta < (depth*3))) {
@@ -2153,7 +2151,7 @@ namespace {
                         uint16_t tp_base;
                         tp_base = p_ch_info->lfo.BASE_TP_H;
                         tp_base = (tp_base<<8)|p_ch_info->lfo.BASE_TP_L;
-                        lq24_tp = (uint64_t)tp_base<<24;
+                        lq24_tp = static_cast<uint64_t>(tp_base)<<24;
                         q6_delta = 0;
 
                     } else {
@@ -2208,19 +2206,23 @@ namespace {
 
     void rewind_mml(SLOT &slot) {
 
-        uint8_t ch;
-        const char *p_mml_head;
-        uint16_t mml_len;
-
         slot.psg_reg.data[0x7]   = 0x3F;
         slot.psg_reg.flags_addr  = 1<<0x7;
         slot.psg_reg.flags_mixer = 0;
         slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
+
         for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {
+
+            const char *p_mml_head;
+            uint8_t ch;
+            uint16_t mml_len;
 
             CHANNEL_INFO *p_ch_info;
 
-            ch = slot.gl_info.sys_status.REVERSE == 1 ? (NUM_CHANNEL-(i+1)) : i;
+            ch = mask_channel(
+                    slot.gl_info.sys_status.REVERSE == 1 ?
+                    (NUM_CHANNEL-(i+1)) : i
+            );
             slot.psg_reg.flags_mixer |= (1<<ch);
 
             p_ch_info = slot.ch_info_list[ch];
@@ -2262,7 +2264,7 @@ namespace {
         for ( uint8_t i = 0; i < NUM_CHANNEL; i++ ) {
 
             slot.ch_info_list[
-                reverse ? (NUM_CHANNEL-(i+1)) : i
+                mask_channel( reverse ? (NUM_CHANNEL-(i+1)) : i )
             ] = p_list[i];
 
             if ( p_list[i] != nullptr ) {
@@ -2280,8 +2282,6 @@ namespace {
     }
 
     int set_mml(SLOT &slot, const char *p_mml, uint16_t mode) {
-
-        uint8_t ch;
 
         if ( p_mml == nullptr ) {
 
@@ -2304,8 +2304,13 @@ namespace {
 
         for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_IMPL; i++ ) {
 
+            uint8_t ch;
+
             CHANNEL_INFO *p_ch_info;
-            ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
+            ch = mask_channel(
+                    ( slot.gl_info.sys_status.REVERSE == 1 ) ?
+                    NUM_CHANNEL-(i+1) : i
+            );
 
             p_ch_info = slot.ch_info_list[ch];
 
@@ -2371,9 +2376,9 @@ namespace {
 
         pre_speed_factor = slot.gl_info.speed_factor;
 
-        speed_factor = sat(speed_factor, MIN_SPEED_FACTOR, MAX_SPEED_FACTOR);
+        speed_factor = SAT(speed_factor, MIN_SPEED_FACTOR, MAX_SPEED_FACTOR);
 
-        q12_alpha = ((uint32_t)pre_speed_factor << 12) / speed_factor;
+        q12_alpha = (static_cast<uint32_t>(pre_speed_factor) << 12) / speed_factor;
 
         for ( uint8_t i = 0; i < NUM_CHANNEL; i++ ) {
 
@@ -2384,18 +2389,18 @@ namespace {
 
                 uint32_t q12_note_on_time;
 
-                q12_note_on_time = ((uint64_t)p_ch_info->time.note_on<<12);
+                q12_note_on_time = (static_cast<uint64_t>(p_ch_info->time.note_on)<<12);
                 q12_note_on_time += p_ch_info->time.NOTE_ON_FRAC;
 
-                q12_note_on_time = ((uint64_t)q12_note_on_time * q12_alpha + (1<<11))>>12;
+                q12_note_on_time = (static_cast<uint64_t>(q12_note_on_time) * q12_alpha + (1<<11))>>12;
 
                 p_ch_info->time.NOTE_ON_FRAC = q12_note_on_time&0xFFF;
                 p_ch_info->time.note_on = (q12_note_on_time>>12)&0xFFFF;
 
-                p_ch_info->time.gate = ((uint32_t)p_ch_info->time.gate * q12_alpha + (1<<11))>>12;
-                p_ch_info->time.sw_env = ((uint32_t)p_ch_info->time.sw_env * q12_alpha + (1<<11))>>12;
-                p_ch_info->time.lfo_delay = ((uint32_t)p_ch_info->time.lfo_delay * q12_alpha + (1<<11))>>12;
-                p_ch_info->time.pitchbend = ((uint32_t)p_ch_info->time.pitchbend * q12_alpha + (1<<11))>>12;
+                p_ch_info->time.gate = (static_cast<uint32_t>(p_ch_info->time.gate) * q12_alpha + (1<<11))>>12;
+                p_ch_info->time.sw_env = (static_cast<uint32_t>(p_ch_info->time.sw_env) * q12_alpha + (1<<11))>>12;
+                p_ch_info->time.lfo_delay = (static_cast<uint32_t>(p_ch_info->time.lfo_delay) * q12_alpha + (1<<11))>>12;
+                p_ch_info->time.pitchbend = (static_cast<uint32_t>(p_ch_info->time.pitchbend) * q12_alpha + (1<<11))>>12;
             }
         }
 
@@ -2404,14 +2409,13 @@ namespace {
 
     void shift_frequency(SLOT &slot, int16_t shift_degrees) {
 
-        slot.gl_info.shift_degrees = sat(shift_degrees, MIN_FREQ_SHIFT_DEGREES, MAX_FREQ_SHIFT_DEGREES);
+        slot.gl_info.shift_degrees = SAT(shift_degrees, MIN_FREQ_SHIFT_DEGREES, MAX_FREQ_SHIFT_DEGREES);
    }
 
     void control_psg(SLOT &slot) {
 
         uint8_t ch;
         uint8_t decode_end_cnt = 0;
-        CHANNEL_INFO *p_ch_info;
 
         slot.gl_info.sys_status.CTRL_STAT_PRE = slot.gl_info.sys_status.CTRL_STAT;
 
@@ -2434,7 +2438,10 @@ namespace {
                 slot.gl_info.sys_status.CTRL_STAT = CTRL_STAT_STOP;
                 for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {
 
-                    ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
+                    ch = mask_channel(
+                            ( slot.gl_info.sys_status.REVERSE == 1 ) ?
+                            NUM_CHANNEL-(i+1) : i
+                    );
                     slot.psg_reg.data[0x7]   |= 0x9<<ch;
                     slot.psg_reg.flags_mixer |= 0x1<<ch;
                 }
@@ -2485,7 +2492,10 @@ namespace {
 
                 for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {
 
-                    ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
+                    ch = mask_channel(
+                            ( slot.gl_info.sys_status.REVERSE == 1 ) ?
+                            NUM_CHANNEL-(i+1) : i
+                    );
                     slot.ch_info_list[ch]->ch_status.END_PRI_LOOP = 1;
                 }
                 slot.gl_info.sys_status.FIN_PRI_LOOP_TRY = 0;
@@ -2494,7 +2504,12 @@ namespace {
 
         for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {
 
-            ch = ( slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-(i+1) : i;
+            CHANNEL_INFO *p_ch_info;
+
+            ch = mask_channel(
+                    ( slot.gl_info.sys_status.REVERSE == 1 ) ?
+                    NUM_CHANNEL-(i+1) : i
+            );
             p_ch_info = slot.ch_info_list[ch];
 
             if ( p_ch_info->time.note_on > 0 ) {
