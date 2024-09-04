@@ -7,6 +7,12 @@
 
 Psgino::Psgino() {
 
+    this->slot0 = (PsgCtrl::SLOT){};
+    this->p_write = nullptr;
+    this->p_reset = nullptr;
+    this->ch0 = (PsgCtrl::CHANNEL_INFO){};
+    this->ch1 = (PsgCtrl::CHANNEL_INFO){};
+    this->ch2 = (PsgCtrl::CHANNEL_INFO){};
 }
 
 Psgino::Psgino(
@@ -138,6 +144,10 @@ void Psgino::FinishPrimaryLoop() {
 
 PsginoZ::PsginoZ() : Psgino() {
 
+    this->slot1 = (PsgCtrl::SLOT){};
+    this->ch0_se = (PsgCtrl::CHANNEL_INFO){};
+    this->reg_mask = 0;
+    this->mixer_mask = 0;
 }
 
 PsginoZ::PsginoZ(
