@@ -334,6 +334,17 @@ namespace PsgCtrl {
         PSG_REG         psg_reg;
     };
 
+    /**
+     * @brief Initializes a SLOT structure.
+     *
+     * @param slot Reference to the SLOT structure to be initialized.
+     * @param s_clock System clock frequency.The unit of this parameter is 0.01 Hz.
+     * @param proc_freq Processing frequency.The unit of this parameter is 1 Hz.
+     * @param reverse Set to true if the slot should process in reverse channel mode.
+     * @param p_ch0 Pointer to the first CHANNEL_INFO structure.
+     * @param p_ch1 Pointer to the second CHANNEL_INFO structure (optional).
+     * @param p_ch2 Pointer to the third CHANNEL_INFO structure (optional).
+     */
     void init_slot(
             SLOT &slot,
             uint32_t s_clock,
@@ -343,15 +354,64 @@ namespace PsgCtrl {
             CHANNEL_INFO *p_ch1 = nullptr,
             CHANNEL_INFO *p_ch2 = nullptr
     );
+
+    /**
+     * @brief Sets the MML string for a SLOT.
+     *
+     * @param slot Reference to the SLOT structure.
+     * @param p_mml Pointer to the MML string.
+     * @param mode Mode setting for the MML.
+     * @return Returns an integer status code.
+     * @retval 0 Success.
+     * @retval Negative value Error.
+     */
     int set_mml(SLOT &slot, const char *p_mml, uint16_t mode);
+
+    /**
+     * @brief Sets a user-defined callback function for a SLOT.
+     *
+     * @param slot Reference to the SLOT structure.
+     * @param callback Pointer to the callback function that takes a channel and a parameter.
+     *
+     * This callback is invoked when the @C command is decoded.
+     */
     void set_user_callback(
             SLOT &slot,
             void (*callback)(uint8_t ch, int32_t param)
     );
+
+    /**
+     * @brief Controls the PSG (Programmable Sound Generator) for a SLOT.
+     *
+     * @param slot Reference to the SLOT structure.
+     *
+     * This function must be executed at the frequency specified by the `proc_freq` argument in `init_slot`.
+     */
     void control_psg(SLOT &slot);
+
+    /**
+     * @brief Resets a SLOT to its initial state.
+     *
+     * @param slot Reference to the SLOT structure.
+     */
     void reset(SLOT &slot);
+
+    /**
+     * @brief Sets the speed factor for a SLOT.
+     *
+     * @param slot Reference to the SLOT structure.
+     * @param speed_factor Speed factor to be set.
+     */
     void set_speed_factor(SLOT &slot, uint16_t speed_factor);
+
+    /**
+     * @brief Shifts the frequency of a SLOT by a certain number of degrees.
+     *
+     * @param slot Reference to the SLOT structure.
+     * @param shift_degrees The amount by which to shift the frequency, in degrees.
+     */
     void shift_frequency(SLOT &slot, int16_t shift_degrees);
+
 }
 #pragma pack()
 
