@@ -156,8 +156,12 @@ namespace {
               );
     }
 
-    inline uint8_t mask_channel(uint8_t ch) {
-        return (ch & 0x3);
+    inline uint8_t clamp_channel(uint8_t ch) {
+        if ( ch >= NUM_CHANNEL ) {
+            // Should never reach here.
+            ch = NUM_CHANNEL-1;
+        }
+        return ch;
     }
 
     uint16_t sw_env_time2tk(
@@ -538,7 +542,7 @@ namespace {
 
     uint16_t get_sus_volume(const SLOT &slot, uint8_t ch) {
 
-        const CHANNEL_INFO *p_ch_info = slot.ch_info_list[mask_channel(ch)];
+        const CHANNEL_INFO *p_ch_info = slot.ch_info_list[clamp_channel(ch)];
         uint32_t sus_volume;
 
         sus_volume =  (static_cast<uint32_t>(p_ch_info->sw_env.sustain) * p_ch_info->tone.VOLUME + 50)/100;
@@ -682,7 +686,7 @@ namespace {
         uint16_t tp_int;
         CHANNEL_INFO *p_ch_info;
 
-        p_ch_info = slot.ch_info_list[mask_channel(ch)];
+        p_ch_info = slot.ch_info_list[clamp_channel(ch)];
 
         if ( p_ch_info->time.pitchbend > 0 ) {
 
@@ -2219,7 +2223,7 @@ namespace {
 
             CHANNEL_INFO *p_ch_info;
 
-            ch = mask_channel(
+            ch = clamp_channel(
                     slot.gl_info.sys_status.REVERSE == 1 ?
                     (NUM_CHANNEL-(i+1)) : i
             );
@@ -2264,7 +2268,7 @@ namespace {
         for ( uint8_t i = 0; i < NUM_CHANNEL; i++ ) {
 
             slot.ch_info_list[
-                mask_channel( reverse ? (NUM_CHANNEL-(i+1)) : i )
+                clamp_channel( reverse ? (NUM_CHANNEL-(i+1)) : i )
             ] = p_list[i];
 
             if ( p_list[i] != nullptr ) {
@@ -2307,7 +2311,7 @@ namespace {
             uint8_t ch;
 
             CHANNEL_INFO *p_ch_info;
-            ch = mask_channel(
+            ch = clamp_channel(
                     ( slot.gl_info.sys_status.REVERSE == 1 ) ?
                     NUM_CHANNEL-(i+1) : i
             );
@@ -2438,7 +2442,7 @@ namespace {
                 slot.gl_info.sys_status.CTRL_STAT = CTRL_STAT_STOP;
                 for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {
 
-                    ch = mask_channel(
+                    ch = clamp_channel(
                             ( slot.gl_info.sys_status.REVERSE == 1 ) ?
                             NUM_CHANNEL-(i+1) : i
                     );
@@ -2492,7 +2496,7 @@ namespace {
 
                 for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {
 
-                    ch = mask_channel(
+                    ch = clamp_channel(
                             ( slot.gl_info.sys_status.REVERSE == 1 ) ?
                             NUM_CHANNEL-(i+1) : i
                     );
@@ -2506,7 +2510,7 @@ namespace {
 
             CHANNEL_INFO *p_ch_info;
 
-            ch = mask_channel(
+            ch = clamp_channel(
                     ( slot.gl_info.sys_status.REVERSE == 1 ) ?
                     NUM_CHANNEL-(i+1) : i
             );
