@@ -31,9 +31,13 @@ namespace PsgCtrl {
     constexpr uint16_t MIN_TP                       = (0);
     constexpr uint16_t MAX_TP                       = (4095);
 
-    constexpr int8_t MIN_TP_OFS                    = (100*-1);
-    constexpr int8_t MAX_TP_OFS                    = (100);
-    constexpr int8_t DEFAULT_TP_OFS                = (0);
+    constexpr int8_t MIN_TP_OFS                     = (100*-1);
+    constexpr int8_t MAX_TP_OFS                     = (100);
+    constexpr int8_t DEFAULT_TP_OFS                 = (0);
+
+    constexpr int16_t MIN_EXCLUDE_NOTE_LEN          = (0);
+    constexpr int16_t MAX_EXCLUDE_NOTE_LEN          = (128);
+    constexpr int16_t DEFAULT_EXCLUDE_NOTE_LEN      = (0);
 
     constexpr uint16_t NOISE_SWEEP_STAT_STOP        = (0);
     constexpr uint16_t NOISE_SWEEP_STAT_NP_UP       = (1);
