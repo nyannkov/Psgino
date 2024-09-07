@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include "psg_ctrl.h"
 
-extern void debug_print(const char *label, int32_t data);
-
 namespace PsgCtrl {
 namespace {
 
