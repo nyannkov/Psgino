@@ -82,7 +82,8 @@ namespace {
             SLOT &slot,
             uint8_t ch,
             const char **pp_pos,
-            const char *p_tail
+            const char *p_tail,
+            uint32_t q12_exclude_note_len
     );
 
     void init_pitchbend(SLOT &slot, uint8_t ch);
@@ -971,7 +972,7 @@ namespace {
             return 0;
         }
 
-        q12_time_delta = ((static_cast<uint32_t>(proc_freq)*4*60)<<12) / (tempo*(static_cast<uint16_t>(note_len)));
+        q12_time_delta = ((static_cast<uint32_t>(proc_freq)*4*60)<<12)/(static_cast<uint32_t>(tempo)*note_len);
         q12_time = q12_time_delta;
 
         while ( dot_cnt > 0 ) {
@@ -1203,7 +1204,8 @@ namespace {
             SLOT &slot,
             uint8_t ch,
             const char **pp_pos,
-            const char *p_tail
+            const char *p_tail,
+            uint32_t q12_exclude_note_len
     ) {
 
         const char *p_pos;
@@ -1534,14 +1536,22 @@ namespace {
             uint32_t q12_gate_time;
             uint8_t req_mixer;
             bool is_update_mixer;
+            uint32_t tempo = (static_cast<uint32_t>(p_ch_info->tone.tempo) * slot.gl_info.speed_factor + 50)/ 100;
 
             q12_note_on_time  = get_note_on_time(
                     note_len,
-                    (static_cast<uint32_t>(p_ch_info->tone.tempo) * slot.gl_info.speed_factor + 50)/ 100,
+                    tempo,
                     dot_cnt,
                     slot.gl_info.proc_freq
             );
+
             q12_note_on_time += p_ch_info->time.NOTE_ON_FRAC;
+            if ( q12_note_on_time > q12_exclude_note_len ) {
+                q12_note_on_time -= q12_exclude_note_len;
+            } else {
+                q12_note_on_time = p_ch_info->time.NOTE_ON_FRAC;
+            }
+
             p_ch_info->time.NOTE_ON_FRAC = q12_note_on_time&0xFFF;
             p_ch_info->time.note_on = (q12_note_on_time>>12)&0xFFFF;
 
@@ -1600,6 +1610,7 @@ namespace {
         const char *p_head;
         const char *p_tail;
         int32_t param;
+        uint32_t q12_exclude_note_len = static_cast<uint32_t>(DEFAULT_EXCLUDE_NOTE_LEN)<<12;
         bool loop_flag = false;
         bool decode_cont = true;
         CHANNEL_INFO *p_ch_info = slot.ch_info_list[ch];
@@ -1630,7 +1641,8 @@ namespace {
             case 'J':/*@fallthrough@*/
             case 'N':/*@fallthrough@*/
             case 'R':
-                generate_tone(slot, ch, &p_pos, p_tail);
+                generate_tone(slot, ch, &p_pos, p_tail, q12_exclude_note_len);
+                q12_exclude_note_len = static_cast<uint32_t>(DEFAULT_EXCLUDE_NOTE_LEN)<<12;
                 decode_cont = false;
                 break;
 
@@ -1640,6 +1652,30 @@ namespace {
             case '@':
                 decode_atsign(slot, ch, &p_pos, p_tail);
                 break;
+
+            case 'X':
+            {
+                uint8_t dot_cnt = 0;
+                uint32_t tempo = (static_cast<uint32_t>(p_ch_info->tone.tempo) * slot.gl_info.speed_factor + 50)/ 100;
+                param = get_param(
+                    &p_pos,
+                    p_tail,
+                    MIN_EXCLUDE_NOTE_LEN,
+                    MAX_EXCLUDE_NOTE_LEN,
+                    DEFAULT_EXCLUDE_NOTE_LEN
+                );
+                if ( *p_pos == '.' ) {
+
+                    p_pos = count_dot(p_pos, p_tail, &dot_cnt);
+                }
+                q12_exclude_note_len = get_note_on_time(
+                        param,
+                        tempo,
+                        dot_cnt,
+                        slot.gl_info.proc_freq
+                );
+                break;
+            }
 
             case 'T':
                 param = get_param(

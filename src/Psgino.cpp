@@ -96,7 +96,7 @@ void Psgino::Initialize(
             &this->ch1,
             &this->ch2
     );
- }
+}
 
 void Psgino::Proc() {
 
