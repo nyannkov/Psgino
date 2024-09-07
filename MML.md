@@ -12,6 +12,7 @@ This document describes MML commands for Psgino.
 | [A-G](#a-g-accidental-length-dot) | Outputs the sound of the specified note. |
 | [N](#n-note-number-dot) | Specifies the note number and outputs the sound. |
 | [R](#r-length-dot) | Inserts a rest. |
+| [X](#x-length-dot) | Shortens the length of the following note or rest. |
 | [T](#t-tempo) | Sets the tempo. |
 | [L](#l-length-dot) | Sets the note length. |
 | [V](#v-volume) | Sets the volume. |
@@ -93,13 +94,31 @@ CR8 C16R16 CR
 CR8 C16R16 CR
 ```
 
+#### X &lt;length&gt; [&lt;dot&gt;]
+
+Shortens the length of the sound or rest immediately following this command by the value specified in &lt;length&gt;. The minimum value is 0, and the maximum value is 128. The default value is 0. When 0 is specified, no shortening occurs.
+
+For example, `X16R8` would change the `R8` rest to `R16`.
+
+| Values           | Description |
+|------------------|-------------|
+| &lt;length&gt;     | Specifies the amount of length to subtract from the following note or rest. Values range from 0 to 128, where "1" represents a whole note, and "4" represents a quarter note. |
+| &lt;dot&gt;        | Specifies a dot. The dot effect is the same as for A-G notes. |
+
+**Example:**
+```
+$E1$A0$H0$D0$S100$F1000$R100      C  X    R  C R,
+$E1$A0$H0$D0$S100$F1000$R100 R32  E  X32  R  E R,
+$E1$A0$H0$D0$S100$F1000$R100 R16  G  X16  R  G R
+```
+
 #### T &lt;tempo&gt;
 
 Sets the tempo. The default tempo is 120 bpm.
 
 | Values       | Description |
 |--------------|-------------|
-| &lt;tempo&gt; | Specify a tempo value between 32 and 255. When using multiple tone channels, tempo settings must be included in the MML for each channel. |
+| &lt;tempo&gt; | Specify a tempo value between 10 and 1000. When using multiple tone channels, tempo settings must be included in the MML for each channel. |
 
 **Example:**
 ```
@@ -504,7 +523,7 @@ Sets the TP offset. The default value for tp-ofs is 0.
 
 |Values|Description|
 |--|--|
-|&lt;bias&gt;|Specify the tp-ofs in the range (-100) to 100. |
+|&lt;tp-ofs&gt;|Specify the tp-ofs in the range (-100) to 100. |
 
 
 **Example:**
