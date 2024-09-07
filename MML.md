@@ -54,9 +54,9 @@ Outputs the sound of the specified note.
 
 | Values           | Description |
 |------------------|-------------|
-| &lt;accidental&gt; | Specify accidental symbols using "#", "+", or "-". "#" and "+" raise the note by a semitone, while "-" lowers it by a semitone. |
-| &lt;length&gt;     | Specify the length of the sound, ranging from 0 to 64. "1" represents a whole note, "4" represents a quarter note. If &lt;length&gt; is omitted, the note length will be set to the value specified by the L command. You can also specify "0" as the note length, in which case no sound is generated. This value is primarily used for the final note in a slur (&) sequence. |
-| &lt;dot&gt;        | Specify a dot with ".". One dot increases the note length by 1.5 times (= 1 + 0.5). Two dots increase it by 1.75 times (= 1 + 0.5 + 0.25). Up to three dots can be used. |
+| &lt;accidental&gt; | Specify accidental symbols using `#`, `+`, or `-`. `#` and `+` raise the note by a semitone, while `-` lowers it by a semitone. |
+| &lt;length&gt;     | Specify the length of the sound, ranging from 0 to 64. `1` represents a whole note, `4` represents a quarter note. If &lt;length&gt; is omitted, the note length will be set to the value specified by the L command. You can also specify `0` as the note length, in which case no sound is generated. This value is primarily used for the final note in a slur (&) sequence. |
+| &lt;dot&gt;        | Specify a dot with `.`. One dot increases the note length by 1.5 times (= 1 + 0.5). Two dots increase it by 1.75 times (= 1 + 0.5 + 0.25). Up to three dots can be used. |
 
 **Example:**
 ```
@@ -83,7 +83,7 @@ Insert a rest.
 
 | Values           | Description |
 |------------------|-------------|
-| &lt;length&gt;     | Specify the length of the rest, ranging from 1 to 64. "1" represents a whole rest, "4" represents a quarter rest. If this value is omitted, the rest length is determined by the "mode" parameter of the SetMML/SetSeMML() method as follows:<br> - If the 0th bit of mode is 0, the rest length is 4 (quarter rest).<br> - If the 0th bit of mode is 1, the rest length will be the value specified by the L command. |
+| &lt;length&gt;     | Specify the length of the rest, ranging from 1 to 64. `1` represents a whole rest, `4` represents a quarter rest. If this value is omitted, the rest length is determined by the `mode` parameter of the SetMML/SetSeMML() method as follows:<br> - If the 0th bit of mode is 0, the rest length is 4 (quarter rest).<br> - If the 0th bit of mode is 1, the rest length will be the value specified by the L command. |
 | &lt;dot&gt;        | Specifies a dot. The dot effect works the same as for A-G notes. |
 
 
@@ -102,7 +102,7 @@ For example, `X16R8` would change the `R8` rest to `R16`.
 
 | Values           | Description |
 |------------------|-------------|
-| &lt;length&gt;     | Specifies the amount of length to subtract from the following note or rest. Values range from 0 to 128, where "1" represents a whole note, and "4" represents a quarter note. |
+| &lt;length&gt;     | Specifies the amount of length to subtract from the following note or rest. Values range from 0 to 128, where `1` represents a whole note, and `4` represents a quarter note. |
 | &lt;dot&gt;        | Specifies a dot. The dot effect is the same as for A-G notes. |
 
 **Example:**
@@ -128,11 +128,11 @@ T120EGB2T100EGB2
 
 #### L &lt;length&gt; [&lt;dot&gt;]
 
-Sets the length of the sound when &lt;length&gt; is omitted in the A-G command. The default value is 4. This setting can also affect the R and H commands, depending on the "mode" parameter of the SetMML/SetSeMML() function.
+Sets the length of the sound when &lt;length&gt; is omitted in the A-G command. The default value is 4. This setting can also affect the R and H commands, depending on the `mode` parameter of the SetMML/SetSeMML() function.
 
 | Values           | Description |
 |------------------|-------------|
-| &lt;length&gt;     | Specify the length of the sound from 1 to 128. "1" represents a whole note, and "4" represents a quarter note. |
+| &lt;length&gt;     | Specify the length of the sound from 1 to 128. `1` represents a whole note, and `4` represents a quarter note. |
 | &lt;dot&gt;        | Specifies a dot. The dot effect is the same as for A-G notes. |
 
 
@@ -222,7 +222,7 @@ Outputs a noise sound with the frequency set by the I command.
 
 | Values           | Description |
 |------------------|-------------|
-| &lt;length&gt;     | Specifies the length of the noise, ranging from 1 to 64. If this value is omitted, the length of the noise is determined by the "mode" parameter of the SetMML/SetSeMML() method, similar to the R command. |
+| &lt;length&gt;     | Specifies the length of the noise, ranging from 1 to 64. If this value is omitted, the length of the noise is determined by the `mode` parameter of the SetMML/SetSeMML() method, similar to the R command. |
 | &lt;dot&gt;        | Specifies a dot. The dot effect is the same as for A-G notes. |
 
 **Example:**
@@ -311,7 +311,7 @@ A2R2 A4&A4R2 A2&>A0R2 A2&<A0R2
 
 #### _[_ [&lt;loop-number&gt;] ... [|] ... _]_
 
-Loop playback of MML is achieved using []. Loops can be nested up to 3 levels. Loop symbols beyond the 3rd level are ignored. The "|" symbol can also be inserted within the loop section to serve as a break statement. This symbol functions as a break statement only for the last loop.
+Loop playback of MML is achieved using []. Loops can be nested up to 3 levels. Loop symbols beyond the 3rd level are ignored. The `|` symbol can also be inserted within the loop section to serve as a break statement. This symbol functions as a break statement only for the last loop.
 
 **NOTE:**
 The primary loop of MML registered with the SetMML() method can be reduced to two remaining loop iterations (including the current loop) by calling the FinishPrimaryLoop() method. This method is used to end background music such as end credits.
@@ -595,5 +595,5 @@ If this command is not executed, the mode flags will be set to the value specifi
 **Example:**
 ```
 :V1M1;
-L4O4CEG.R8 N36N40N43.R8
+L4CR L8CR L16CH L32CH L64CH
 ```
