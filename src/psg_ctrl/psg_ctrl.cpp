@@ -1436,7 +1436,7 @@ namespace {
             tp = shift_tp(tp, slot.gl_info.shift_degrees);
 
             /* Apply the TP offset to the BIAS calculation result for fine adjustments, such as detuning. */
-            tp = static_cast<uint16_t>(SAT(tp + static_cast<uint16_t>(p_ch_info->tone.tp_ofs), MIN_TP, MAX_TP));
+            tp = static_cast<uint16_t>(SAT(static_cast<int16_t>(tp) + static_cast<int16_t>(p_ch_info->tone.tp_ofs), MIN_TP, MAX_TP));
 
             if ( is_start_legato_effect ) {
 
@@ -1446,7 +1446,7 @@ namespace {
                 tp_end = shift_tp(tp_end, slot.gl_info.shift_degrees);
 
                 /* Apply the TP offset to the BIAS calculation result for fine adjustments, such as detuning. */
-                tp_end = static_cast<uint16_t>(SAT(tp_end + static_cast<uint16_t>(p_ch_info->tone.tp_ofs), MIN_TP, MAX_TP));
+                tp_end = static_cast<uint16_t>(SAT(static_cast<int16_t>(tp_end) + static_cast<int16_t>(p_ch_info->tone.tp_ofs), MIN_TP, MAX_TP));
 
             } else {
 
