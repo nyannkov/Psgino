@@ -1824,9 +1824,23 @@ namespace {
 
                     if ( p_ch_info->mml.loop_times[p_ch_info->ch_status.LOOP_DEPTH - 1] == 1 ) {
 
+                        uint16_t loop_depth = p_ch_info->ch_status.LOOP_DEPTH;
+                        const uint16_t loop_end = loop_depth - 1;
+
                         for ( p_pos = p_pos+1 ; p_pos < p_tail; p_pos++ ) {
 
-                            if ( p_pos[0] == ']' ) {
+                            if ( p_pos[0] == '[' ) {
+
+                                loop_depth++;
+
+                            } else if ( p_pos[0] == ']' ) {
+
+                                loop_depth--;
+
+                            } else {
+                            }
+
+                            if ( loop_depth == loop_end ) {
 
                                 break;
                             }
