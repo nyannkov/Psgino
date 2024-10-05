@@ -100,18 +100,15 @@ void Psgino::Initialize(
 
 void Psgino::Proc() {
 
-    if ( this->p_write == nullptr ) {
-
-        return;
-    }
-
     PsgCtrl::control_psg(this->slot0);
 
-    for ( uint8_t addr = 0; addr <= 0xF; addr++ ) {
+    if ( this->p_write != nullptr ) {
+        for ( uint8_t addr = 0; addr <= 0xF; addr++ ) {
 
-        if ( ( (this->slot0.psg_reg.flags_addr >> addr) & 0x1 ) != 0 ) {
+            if ( ( (this->slot0.psg_reg.flags_addr >> addr) & 0x1 ) != 0 ) {
 
-            this->p_write(addr, this->slot0.psg_reg.data[addr]);
+                this->p_write(addr, this->slot0.psg_reg.data[addr]);
+            }
         }
     }
 
@@ -248,11 +245,6 @@ void PsginoZ::Proc() {
     uint16_t masked_flags_addr;
     uint16_t mixer;
 
-    if ( this->p_write == nullptr ) {
-
-        return;
-    }
-
     PsgCtrl::control_psg(this->slot0);
     PsgCtrl::control_psg(this->slot1);
 
@@ -291,17 +283,19 @@ void PsginoZ::Proc() {
     mixer |= this->slot1.psg_reg.data[0x7] & this->mixer_mask;
     mixer &= 0x3F;
 
-    for ( uint8_t i = 0; i <= 0xF; i++ ) {
+    if ( this->p_write != nullptr ) {
+        for ( uint8_t i = 0; i <= 0xF; i++ ) {
 
-        if ( ( this->slot1.psg_reg.flags_addr & (1<<i) ) != 0 ) {
+            if ( ( this->slot1.psg_reg.flags_addr & (1<<i) ) != 0 ) {
 
-            this->p_write(i, (i==0x7) ? mixer : this->slot1.psg_reg.data[i]);
+                this->p_write(i, (i==0x7) ? mixer : this->slot1.psg_reg.data[i]);
 
-        } else if ( ( masked_flags_addr & (1<<i) ) != 0 ) {
+            } else if ( ( masked_flags_addr & (1<<i) ) != 0 ) {
 
-            this->p_write(i, (i==0x7) ? mixer : this->slot0.psg_reg.data[i]);
+                this->p_write(i, (i==0x7) ? mixer : this->slot0.psg_reg.data[i]);
 
-        } else {
+            } else {
+            }
         }
     }
 
