@@ -134,9 +134,14 @@ void Psgino::Reset() {
     }
 }
 
-void Psgino::FinishPrimaryLoop() {
+void Psgino::FinishPrimaryLoop(bool force) {
 
-    this->slot0.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 1;
+    this->slot0.gl_info.sys_request.FIN_PRI_LOOP_REQ_FLAG = 1;
+    if ( force ) {
+        this->slot0.gl_info.sys_request.FIN_PRI_LOOP_REQ = PsgCtrl::FIN_PRI_LOOP_REQ_FORCE;
+    } else {
+        this->slot0.gl_info.sys_request.FIN_PRI_LOOP_REQ = PsgCtrl::FIN_PRI_LOOP_REQ_NORMAL;
+    }
 }
 
 PsginoZ::PsginoZ() : Psgino() {
