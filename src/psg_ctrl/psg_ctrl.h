@@ -23,6 +23,9 @@ namespace PsgCtrl {
     constexpr int16_t CTRL_REQ_STOP                 = (0);
     constexpr int16_t CTRL_REQ_PLAY                 = (1);
 
+    constexpr int16_t FIN_PRI_LOOP_REQ_NORMAL       = (0);
+    constexpr int16_t FIN_PRI_LOOP_REQ_FORCE        = (1);
+
     constexpr int16_t PBEND_STAT_STOP               = (0);
     constexpr int16_t PBEND_STAT_TP_UP              = (1);
     constexpr int16_t PBEND_STAT_TP_DOWN            = (2);
@@ -199,11 +202,12 @@ namespace PsgCtrl {
     };
 
     struct SYS_REQUEST {
-        uint8_t    CTRL_REQ        : 2;
-        uint8_t                    : 6;
-        uint8_t    CTRL_REQ_FLAG   : 1;
-        uint8_t    FIN_PRI_LOOP_FLAG : 1;
-        uint8_t                    : 6;
+        uint8_t    CTRL_REQ                 : 2;
+        uint8_t    FIN_PRI_LOOP_REQ         : 1;
+        uint8_t                             : 5;
+        uint8_t    CTRL_REQ_FLAG            : 1;
+        uint8_t    FIN_PRI_LOOP_REQ_FLAG    : 1;
+        uint8_t                             : 6;
     };
 
     struct CH_STATUS {

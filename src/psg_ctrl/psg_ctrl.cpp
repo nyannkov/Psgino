@@ -1821,8 +1821,15 @@ namespace {
 
             case '|':
                 if ( p_ch_info->ch_status.LOOP_DEPTH > 0 ) {
+                    bool skip_flag = false;
+                    skip_flag |= (p_ch_info->mml.loop_times[p_ch_info->ch_status.LOOP_DEPTH - 1] == 1);
+                    skip_flag |= (
+                            ( p_ch_info->ch_status.LOOP_DEPTH == 1 ) &&
+                            ( p_ch_info->ch_status.END_PRI_LOOP == 1 ) &&
+                            ( slot.gl_info.sys_request.FIN_PRI_LOOP_REQ == FIN_PRI_LOOP_REQ_FORCE )
+                    );
 
-                    if ( p_ch_info->mml.loop_times[p_ch_info->ch_status.LOOP_DEPTH - 1] == 1 ) {
+                    if ( skip_flag ) {
 
                         uint16_t loop_depth = p_ch_info->ch_status.LOOP_DEPTH;
                         const uint16_t loop_end = loop_depth - 1;
@@ -1860,23 +1867,20 @@ namespace {
             case ']':
                 if ( p_ch_info->ch_status.LOOP_DEPTH > 0 ) {
 
+                    bool loop_exit_flag = false;
                     uint16_t loop_index = 0;
                     loop_index = p_ch_info->ch_status.LOOP_DEPTH - 1;
 
-                    if ( loop_flag ) {
+                    loop_exit_flag |= loop_flag; // Force exit from the loop because there is no message in this loop.
+                    loop_exit_flag |= ( p_ch_info->mml.loop_times[loop_index] == 1 );
+                    loop_exit_flag |= (
+                            ( p_ch_info->ch_status.LOOP_DEPTH == 1 ) &&
+                            ( p_ch_info->ch_status.END_PRI_LOOP == 1 ) &&
+                            ( slot.gl_info.sys_request.FIN_PRI_LOOP_REQ == FIN_PRI_LOOP_REQ_FORCE )
+                    );// Exit the primary loop with the force flag.
 
-                        /* A loop with no message. */
-                        /* Force exit from the loop. */
-                        if ( p_ch_info->ch_status.LOOP_DEPTH == 1 ) {
+                    if ( loop_exit_flag ) {
 
-                            p_ch_info->mml.prim_loop_counter = 0;
-                        }
-                        p_ch_info->mml.loop_times[loop_index] = 0;
-                        p_ch_info->ch_status.LOOP_DEPTH = loop_index;
-                        p_pos++;
-
-                    } else if ( p_ch_info->mml.loop_times[loop_index] == 1 ) {
-                        /* Loop end */
                         if ( p_ch_info->ch_status.LOOP_DEPTH == 1 ) {
 
                             p_ch_info->mml.prim_loop_counter = 0;
@@ -1896,6 +1900,7 @@ namespace {
                             /* Infinite loop */
                         }
 
+                        /* Exit the primary loop without using the force flag. */
                         if ( p_ch_info->ch_status.LOOP_DEPTH == 1 ) {
 
                             if ( p_ch_info->ch_status.END_PRI_LOOP == 1 ) {
@@ -2263,7 +2268,8 @@ namespace {
         slot.psg_reg.data[0x7]   = 0x3F;
         slot.psg_reg.flags_addr  = 1<<0x7;
         slot.psg_reg.flags_mixer = 0;
-        slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
+        slot.gl_info.sys_request.FIN_PRI_LOOP_REQ_FLAG = 0;
+        slot.gl_info.sys_request.FIN_PRI_LOOP_REQ = FIN_PRI_LOOP_REQ_NORMAL;
 
         for ( uint8_t i = 0; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {
 
@@ -2415,7 +2421,8 @@ namespace {
         slot.gl_info.sys_status.CTRL_STAT_PRE = CTRL_STAT_STOP;
         slot.gl_info.sys_request.CTRL_REQ = CTRL_REQ_STOP;
         slot.gl_info.sys_request.CTRL_REQ_FLAG = 0;
-        slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
+        slot.gl_info.sys_request.FIN_PRI_LOOP_REQ = FIN_PRI_LOOP_REQ_NORMAL;
+        slot.gl_info.sys_request.FIN_PRI_LOOP_REQ_FLAG = 0;
 
         slot.gl_info.noise_info = (NOISE_INFO){};
         slot.gl_info.noise_info.SWEEP_STAT = NOISE_SWEEP_STAT_STOP;
@@ -2510,10 +2517,10 @@ namespace {
             return;
         }
 
-        if ( slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG != 0 ) {
+        if ( slot.gl_info.sys_request.FIN_PRI_LOOP_REQ_FLAG != 0 ) {
 
             slot.gl_info.sys_status.FIN_PRI_LOOP_TRY = MAX_FIN_PRI_LOOP_TRY;
-            slot.gl_info.sys_request.FIN_PRI_LOOP_FLAG = 0;
+            slot.gl_info.sys_request.FIN_PRI_LOOP_REQ_FLAG = 0;
         }
         if ( slot.gl_info.sys_status.FIN_PRI_LOOP_TRY > 0 ) {
 
@@ -2524,7 +2531,7 @@ namespace {
 
                 uint8_t prim_loop_counter = slot.ch_info_list[
                         (slot.gl_info.sys_status.REVERSE == 1 ) ? NUM_CHANNEL-1 : 0
-                    ]->mml.prim_loop_counter;
+                ]->mml.prim_loop_counter;
 
                 fin_prim_loop = true;
                 for ( uint8_t i = 1; i < slot.gl_info.sys_status.NUM_CH_USED; i++ ) {

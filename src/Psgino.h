@@ -88,12 +88,20 @@ public:
     );
 
     /**
-     * @brief Completes the primary loop of the PSG processing.
+     * @brief Completes or exits the primary loop of the PSG processing.
      * 
-     * For example, if an MML sequence is being played in an infinite loop, calling this method will cause the playback to exit the loop 
-     * when it reaches the loop's end, rather than returning to the beginning. The loop will terminate, and playback will continue decoding the subsequent MML.
+     * This function controls the behavior when reaching the end of a primary loop in an MML sequence. The behavior differs based on the value of the `force` parameter:
+     * - If `force` is `false`, when playback reaches the loop's end `]`, the loop termination process will be performed.
+     *   In this case, the remaining loop count will be set to 1, and playback will return to the loop's start `[`.
+     * - If `force` is `true`, playback will exit the loop upon reaching the loop's end `]`.
+     *   Additionally, if a break symbol `|` is detected within the loop, playback will also exit the loop.
+     * 
+     * Note: When `force` is `true`, executing this function between the break symbol `|` and the loop's end `]` may lead to an unintended melody sequence.
+     *       Therefore, it's recommended to adjust the timing of this function's execution using MML callback functions, such as the `@C` command.
+     *
+     * @param force Determines whether to forcefully exit the primary loop (`true`) or not (`false`).
      */
-    void FinishPrimaryLoop();
+    void FinishPrimaryLoop(bool force = false);
 
     /**
      * @brief Sets the speed factor for playback.
