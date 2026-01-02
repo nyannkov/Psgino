@@ -117,6 +117,12 @@ public:
     void SetSpeedFactor(uint16_t speed_factor);
 
     /**
+     * @brief Gets the current speed factor for playback.
+     * @return The speed factor in percent (%).
+     */
+    uint16_t GetSpeedFactor() const;
+
+    /**
      * @brief Shifts the frequency of the sound.
      * 
      * The `shift_degrees` parameter can range from -1800 degrees to 1800 degrees. 
@@ -126,6 +132,12 @@ public:
      * @param shift_degrees The amount to shift the frequency, in degrees.
      */
     void ShiftFrequency(int16_t shift_degrees);
+
+    /**
+     * @brief Gets the current frequency shift for playback.
+     * @return The frequency shift in degrees.
+     */
+    int16_t GetFrequencyShiftDegrees() const;
 
     /**
      * @brief Initializes the PSG with the given parameters.
@@ -276,6 +288,12 @@ public:
     void SetSeSpeedFactor(uint16_t speed_factor);
 
     /**
+     * @brief Gets the current speed factor for SE playback.
+     * @return The speed factor in percent (%).
+     */
+    uint16_t GetSeSpeedFactor() const;
+
+    /**
      * @brief Shifts the frequency of the SE sound.
      * 
      * The `shift_degrees` parameter can range from -1800 degrees to 1800 degrees. 
@@ -285,6 +303,12 @@ public:
      * @param shift_degrees The amount to shift the frequency, in degrees.
      */
     void ShiftSeFrequency(int16_t shift_degrees);
+
+    /**
+     * @brief Gets the current frequency shift for SE playback.
+     * @return The frequency shift in degrees.
+     */
+    int16_t GetSeFrequencyShiftDegrees() const;
 
     /**
      * @brief Initializes the PSG with the given parameters, specifically for SE.
