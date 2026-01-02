@@ -73,9 +73,19 @@ void Psgino::SetSpeedFactor(uint16_t speed_factor) {
     PsgCtrl::set_speed_factor(this->slot0, speed_factor);
 }
 
+uint16_t Psgino::GetSpeedFactor() const {
+
+    return this->slot0.gl_info.speed_factor;
+}
+
 void Psgino::ShiftFrequency(int16_t shift_degrees) {
 
     PsgCtrl::shift_frequency(this->slot0, shift_degrees);
+}
+
+int16_t Psgino::GetFrequencyShiftDegrees() const {
+
+    return this->slot0.gl_info.shift_degrees;
 }
 
 void Psgino::Initialize(
@@ -219,9 +229,19 @@ void PsginoZ::SetSeSpeedFactor(uint16_t speed_factor) {
     PsgCtrl::set_speed_factor(this->slot1, speed_factor);
 }
 
+uint16_t PsginoZ::GetSeSpeedFactor() const {
+
+    return this->slot1.gl_info.speed_factor;
+}
+
 void PsginoZ::ShiftSeFrequency(int16_t shift_degrees) {
 
     PsgCtrl::shift_frequency(this->slot1, shift_degrees);
+}
+
+int16_t PsginoZ::GetSeFrequencyShiftDegrees() const {
+
+    return this->slot1.gl_info.shift_degrees;
 }
 
 void PsginoZ::Initialize(
