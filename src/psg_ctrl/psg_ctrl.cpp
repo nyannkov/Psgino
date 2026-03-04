@@ -1873,11 +1873,15 @@ namespace {
 
                     loop_exit_flag |= loop_flag; // Force exit from the loop because there is no message in this loop.
                     loop_exit_flag |= ( p_ch_info->mml.loop_times[loop_index] == 1 );
-                    loop_exit_flag |= (
-                            ( p_ch_info->ch_status.LOOP_DEPTH == 1 ) &&
-                            ( p_ch_info->ch_status.END_PRI_LOOP == 1 ) &&
-                            ( slot.gl_info.sys_request.FIN_PRI_LOOP_REQ == FIN_PRI_LOOP_REQ_FORCE )
-                    );// Exit the primary loop with the force flag.
+
+                    // Exit the primary loop with the force flag.
+                    if ( ( p_ch_info->ch_status.LOOP_DEPTH == 1 ) &&
+                         ( p_ch_info->ch_status.END_PRI_LOOP == 1 ) &&
+                         ( slot.gl_info.sys_request.FIN_PRI_LOOP_REQ == FIN_PRI_LOOP_REQ_FORCE )
+                    ) {
+                        loop_exit_flag = true;
+                        p_ch_info->ch_status.END_PRI_LOOP = 0;
+                    }
 
                     if ( loop_exit_flag ) {
 
