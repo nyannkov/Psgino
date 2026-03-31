@@ -80,7 +80,7 @@ namespace PsgCtrl {
     constexpr int16_t MAX_NOISE_NP                  = (31);
     constexpr int16_t DEFAULT_NOISE_NP              = (16);
 
-    constexpr int16_t MAX_LOOP_NESTING_DEPTH        = (3);
+    constexpr int16_t MAX_LOOP_NESTING_DEPTH        = (7);
 
     constexpr int16_t MAX_FIN_PRI_LOOP_TRY          = (15);
 
@@ -218,9 +218,8 @@ namespace PsgCtrl {
         uint16_t    SW_ENV_MODE    : 1;
         uint16_t    SW_ENV_STAT    : 3;
         uint16_t    PBEND_STAT     : 2;
-        uint16_t    LOOP_DEPTH     : 2;
+        uint16_t    LOOP_DEPTH     : 3;
         uint16_t    END_PRI_LOOP   : 1;
-        uint16_t                   : 1;
     };
 
     struct NOISE_INFO {
