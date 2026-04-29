@@ -1194,6 +1194,22 @@ namespace {
             p_info->pitchbend.level = param;
             break;
 
+        case '<':
+            if ( p_info->tone.VOLUME > MIN_VOLUME_LEVEL ) {
+
+                p_info->tone.VOLUME--;
+            }
+            (*pp_pos)++;
+            break;
+
+        case '>':
+            if ( p_info->tone.VOLUME < MAX_VOLUME_LEVEL ) {
+
+                p_info->tone.VOLUME++;
+            }
+            (*pp_pos)++;
+            break;
+
         default:
             (*pp_pos)++;
             break;
