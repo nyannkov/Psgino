@@ -44,6 +44,8 @@ This document describes MML commands for Psgino.
 | [$B](#b-bias) | Biases the frequency of the output sound. |
 | [$O](#o-tp-ofs) | Sets the TP offset. |
 | [$P](#p-pitchbend-level) | Smoothly increases or decreases the frequency of the output sound until it stops. |
+| [$&lt;](#dollar-lt) | Decreases the volume level set by the `V` command. |
+| [$&gt;](#dollar-gt) | Increases the volume level set by the `V` command. |
 | [@C](#c-data) | Invokes the user-defined callback function. |
 
 ### Basic command
@@ -545,6 +547,22 @@ Smoothly increases or decreases the frequency of the output sound to the value s
 V15L16O4
 $P-360 CDEFGAB>C<
 $P360 CDEFGAB>C<
+```
+#### $&lt;(Dollar-LT)
+Decreases the volume level set by the `V` command.
+
+**Example:**
+```
+V15L16 [15 $< A]
+```
+
+#### $&gt;(Dollar-GT)
+
+Increases the volume level set by the `V` command.
+
+**Example:**
+```
+V0L16 [15 $> A]
 ```
 
 #### @C &lt;data&gt;
