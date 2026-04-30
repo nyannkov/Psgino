@@ -313,7 +313,7 @@ A2R2 A4&A4R2 A2&>A0R2 A2&<A0R2
 
 #### _[_ [&lt;loop-number&gt;] ... [|] ... _]_
 
-Loop playback of MML is achieved using `[]`. Loops can be nested up to 3 levels. Loop symbols beyond the 3rd level are ignored. The `|` symbol can also be inserted within the loop section to serve as a break statement. This symbol functions as a break statement only for the last loop.
+Loop playback of MML is achieved using `[]`. Loops can be nested up to 7 levels. Loop symbols beyond the 7th level are ignored. The `|` symbol can also be inserted within the loop section to serve as a break statement. This symbol functions as a break statement only for the last loop.
 
 **NOTE:**
 The primary loop of MML registered with the `SetMML()` method can be reduced to two remaining loop iterations (including the current loop) by calling the `FinishPrimaryLoop()` method. This method is used to end background music such as end credits.
